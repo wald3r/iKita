@@ -1,4 +1,8 @@
-Softwareentwicklung und Projektmanagment Projekt 2017
+First Spring Boot project 
+
+_________________________________________
+
+Softwareengineering and Projectmanagement Project 2017
 
 Proseminar 1 Team 4
 
@@ -17,14 +21,14 @@ Copy the "local.db.mv.db" file from "db-orig/" to the project's root directory.
 
 ## Description
 
-Verwaltungssoftware für Kindertagesstätten
+Managementsoftware for Kindergardens
 
 
 ## Project members
 
 - André Potocnik
 - Daniel Walder
-- Fabio Valentini (chief)
+- Fabio Valentini 
 - Kerstin Klabischnig
 - Lucas Markovic
 
@@ -38,20 +42,20 @@ Verwaltungssoftware für Kindertagesstätten
     Usermanagement: Person, Child
     
     Teacher (Daniel):
-        * Person und Child anlegen
-        * alle Persons anzeigen
-        * alle Children anzeigen
-        * Person und Child löschen
-        * Person und Child ändern
-        * Guardian bestätigen
+        * add adults and kids
+        * show all adults
+        * show all kids
+        * delete adults and kids
+        * change adults and kids
+        * accept guardians
         
     Parent (Kerstin):
-        * Guardian anlegen
-        * Daten von Child ändern
-        * Daten von Guardian ändern
-        * Daten von Parent/this ändern
-        * alle Children anzeigen
-        * alle Guardians anzeigen
+        * add guardian
+        * change kids
+        * change guardian
+        * change parents
+        * show all kids
+        * show all guardians
         
 # Segment 1:
 
@@ -92,19 +96,14 @@ Verwaltungssoftware für Kindertagesstätten
         * Notifications
         * Lunch Reminder
         
-	Stammdaten(Daniel)
-
-    PDF (Daniel)
+	* base data(Daniel)
+	* PDF (Daniel)
 
 # Segment 3:
 
     Additional Features: Terminal, Picture Gallery, Message Board, Private Messaging
-    
     Terminal (Lucas)
-        * Teile der GUI nochmal implementieren für kleines Display
-        
     Message Board + Private Messages (Fabio)
-    
     Picture Gallery (André)
 
 # Segment 4:

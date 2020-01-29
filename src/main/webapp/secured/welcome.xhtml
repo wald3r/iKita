@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name="content">
+        <p:panel header="Es gibt unbestätigte Bezugspersonen!"
+                 rendered="#{(welcomeController.allUnconfirmedGuardians > 0) and ((sessionInfoBean.hasRole('ADMIN') or sessionInfoBean.hasRole('TEACHER')) or (sessionInfoBean.hasRole('ADMIN') and sessionInfoBean.hasRole('TEACHER')))}">
+            <p:link value="Klicke hier, um sie zu bestätigen!"
+                    outcome="/secured/guardians.xhtml?i=1">
+            </p:link>
+        </p:panel>
+
+        <p:panel id="broadcastPanel"
+                 header="Neuigkeiten">
+            <p:outputPanel>
+                <!-- Öffentliche Nachrichten -->
+                <h:outputText value="Keine Neuigkeiten!"
+                              rendered="#{messageController.broadcastList.size() == 0}"/>
+
+                <p:dataList id="broadcasts"
+                            var="broadcast"
+                            type="definition"
+                            rendered="#{messageController.broadcastList.size() > 0}"
+                            value="#{messageController.broadcastList}"
+                            style="text-align: left">
+
+                    <p:outputPanel>
+                        <h:panelGrid columns="2"
+                                     cellpadding="5"
+                                     layout="grid">
+                            <h:outputText value="Betreff:"/>
+                            <h:outputText value="#{broadcast.subject}"/>
+
+                            <h:outputText value="Sender:"/>
+                            <h:outputText
+                                    value="#{broadcast.sender.firstName} #{broadcast.sender.lastName}"/>
+
+                            <h:outputText value="Gesendet:"/>
+                            <h:outputText value="#{broadcast.time}">
+                                <f:convertDateTime type="both"
+                                                   pattern="dd. MMMM YYYY 'um' HH:mm:ss"
+                                                   locale="de"
+                                                   timeZone="Europe/Vienna"/>
+                            </h:outputText>
+                        </h:panelGrid>
+
+                        <h:panelGrid columns="1" cellpadding="5"
+                                     layout="grid">
+                            <h:outputText value="#{broadcast.content}" style="width: 80%"/>
+                        </h:panelGrid>
+                    </p:outputPanel>
+
+                    <p:outputPanel>
+                        <h:form>
+                            <h:panelGrid columns="3"
+                                         cellpadding="5"
+                                         layout="grid">
+                                <p:commandButton title="Ausblenden"
+                                                 icon="ui-icon-cancel"
+                                                 update="broadcastPanel"
+                                                 action="#{messageController.doMarkAsRead(broadcast)}"
+                                                 disabled="#{!messageController.canHideBroadcast(broadcast)}"/>
+                                <p:commandButton title="Antworten"
+                                                 icon="ui-icon-arrowreturn-1-w"
+                                                 update="newResponseDialog"
+                                                 action="#{messageController.setOriginal(broadcast)}"
+                                                 oncomplete="PF('newResponseDialog').show();"/>
+                                <p:commandButton title="Löschen"
+                                                 icon="ui-icon-trash"
+                                                 update="broadcastPanel"
+                                                 action="#{messageController.deleteMessage(broadcast)}"
+                                                 rendered="#{messageController.canHideBroadcast(broadcast)}"/>
+                            </h:panelGrid>
+                        </h:form>
+                    </p:outputPanel>
+
+                    <p:separator/>
+                </p:dataList>
+            </p:outputPanel>
+        </p:panel>
+
+        <p:dialog header="Antworten"
+                  id="newResponseDialog"
+                  widgetVar="newResponseDialog"
+                  modal="true">
+            <!-- Response Dialog with pre-filled Subject and Recipient -->
+            <h:form>
+                <p:panelGrid columns="2"
+                             cellpadding="5">
+
+                    <h:outputText value="Empfänger"/>
+                    <h:outputText
+                            value="#{messageController.original.sender.firstName} #{messageController.original.sender.lastName}"/>
+
+                    <h:outputText value="Betreff"/>
+                    <h:outputText value="#{messageController.original.subject}"/>
+
+                    <h:outputText value="Ursprüngliche Nachricht"/>
+                    <h:outputText value="#{messageController.original.content}"/>
+
+                    <p:outputLabel for="responseDialogContent" value="Nachricht"/>
+                    <p:inputTextarea id="responseDialogContent"
+                                     value="#{messageController.newContent}"
+                                     rows="10"
+                                     cols="80"
+                                     required="true"
+                                     counter="newResponseRemChars"
+                                     maxlength="500"
+                                     counterTemplate="Noch {0} Zeichen verfügbar."
+                                     autoResize="true"/>
+
+                    <h:outputText value=""/>
+                    <h:outputText id="newResponseRemChars"/>
+
+                    <p:commandButton id="newResponseSendButton"
+                                     value="Senden"
+                                     update="broadcasts"
+                                     action="#{messageController.sendResponse()}"
+                                     oncomplete="PF('newResponseDialog').hide()"/>
+                    <p:commandButton value="Abbrechen"
+                                     update="newResponseDialog"
+                                     action="#{messageController.reset()}"
+                                     oncomplete="PF('newResponseDialog').hide()"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+
+
+        <!-- German language support -->
+        <script type="text/javascript">
+            PrimeFaces.locales ['de'] = {
+                closeText: 'Schließen',
+                prevText: 'Zurück',
+                nextText: 'Weiter',
+                monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                weekHeader: 'Woche',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix:'',
+                timeOnlyTitle: 'Nur Zeit',
+                timeText: 'Zeit',
+                hourText: 'Stunde',
+                minuteText: 'Minute',
+                secondText: 'Sekunde',
+                currentText: 'Aktuelles Datum',
+                ampm: false,
+                month: 'Monat',
+                week: 'Woche',
+                day: 'Tag',
+                allDayText: 'Ganzer Tag'
+            };
+        </script>
+
+    </ui:define>
+
+</ui:composition>

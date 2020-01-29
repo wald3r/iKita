@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+                
+
+	<ui:define name ="content">
+		<h:form id="guardianForm">
+		
+			<p:dataTable id="guardianTable" var="guardian" value="#{guardianListController.myGuardians}" emptyMessage="Keine Einträge" style="text-align: center" >
+				
+				<f:facet name="header">
+                                 <p:commandButton  icon="ui-icon-circle-plus" title="Neue Bezugsperson anlegen" action="#{personBean.clearSettings}" 
+		                 update=":guardianForm:newGuardianDialog" oncomplete="PF('newGuardianDialog').show ()" 
+                                 rendered="#{personListController.isParentActive()}" style="margin-top: 10px;"> 
+	                          </p:commandButton>
+                                Meine Bezugspersonen
+                                 
+                                </f:facet> 
+								
+				<p:column headerText="Nachname">
+					<h:outputText value="#{guardian.lastName}"/>
+				</p:column>
+				
+				<p:column headerText="Vorname">
+					<h:outputText value="#{guardian.firstName}"/>
+				</p:column>
+				
+				<p:column headerText="E-Mail-Adresse">
+					<h:outputText value="#{guardian.email}"/>
+				</p:column>
+				
+				 <p:column headerText="private Telefonnummer">
+                    <h:outputText value="#{guardian.privateTelephone}"/>
+                </p:column>
+                <p:column headerText="geschäftliche Telefonnummer">
+                    <h:outputText value="#{guardian.workTelephone}"/>
+                </p:column>
+                
+              			
+			</p:dataTable>
+	
+
+
+        <p:dialog header="Nachricht" id="confirmationDialog" widgetVar="confirmationDialog" width="700" height="90" modal="true" showEffect="clip" 
+                  hideEffect="clip" resizable="false" >
+             <p:outputPanel id="status">
+             <h:outputText id="status0" rendered="#{personBean.getStatus() == 1}"
+                  value="Speichern nicht möglich! Die Pflichtfelder wurden nicht vollständig ausgefüllt!"
+                  style="color:red"/>
+              <h:outputText id="status1" rendered="#{personBean.getStatus() == 2}"
+                  value="Person mit diesen Daten schon vorhanden!"
+                  style="color:red"/>
+              <h:outputText id="status2" rendered="#{personBean.getStatus() == 0}"
+                  value="Person wurde gespeichert!"/>
+		      <p:separator />
+              </p:outputPanel>
+             <p:commandButton value="Fenster Schließen" update="panel" onclick="PF('confirmationDialog').hide()"/>
+        </p:dialog>  
+
+			
+		<p:dialog header="Neue Bezugsperson anlegen" id="newGuardianDialog" widgetVar="newGuardianDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+	    	<h:panelGrid columns="3" cellpadding="5" id="panel">
+				
+                    <p:outputLabel for="firstName" value="Vorname: " />
+                    <p:inputMask id="firstName" value="#{personBean.firstName}"/>
+                    <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>            
+				
+	            <p:outputLabel for="lastName" value="Nachname:" />
+	            <p:inputMask id="lastName" value="#{personBean.lastName}" />
+                    <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>            
+ 			   
+	            <p:outputLabel for="email" value="E-Mail:" />
+       		    <p:inputMask id="email" value="#{personBean.email}" />
+                    <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>            
+
+	            <p:outputLabel for="privateTelephone" value="private Telefonnummer:" />
+	            <p:inputMask id="privateTelephone" value="#{personBean.privateTelephone}" mask="+99? 999 9999999"/>
+	            <h:outputText/>            
+			
+		    <p:outputLabel for="workTelephone" value="geschäftliche Telefonnummer:" />
+	            <p:inputMask id="workTelephone" value="#{personBean.workTelephone}" mask="+99? 999 9999999"/>
+	            <h:outputText />            
+
+		    <p:outputLabel for="comment" value="Kommentar:" />
+	            <p:inputTextarea rows="6" cols="33" id="comment" value="#{personBean.comment}" />
+	            <h:outputText />            
+			
+			<p:outputLabel value="Bild hinzufügen:"/>
+	
+			<p:fileUpload fileUploadListener="#{personBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+			sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+			invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+	            <h:outputText/>            
+                
+  		     <h:outputLabel for="kids" value="Kinder:"/> 
+		     <p:selectCheckboxMenu id="kids" label="bitte auswählen" value="#{personBean.children1}" filter="true" filterMatchMode="startsWith" panelStyle="width:550px">
+				<f:selectItems value="#{personBean.currentPerson.childrenStringList}" />    				  
+               
+            </p:selectCheckboxMenu>
+            
+          
+		</h:panelGrid>
+	
+		<p:separator />
+				
+		<h:panelGrid columns="2" cellpadding="5" id="panel3">   
+		    <p:commandButton value="Speichern" onclick="PF('confirmationDialog').show()" actionListener="#{personBean.newPerson}" update="status">
+	            </p:commandButton>
+                    <p:commandButton value="Fenster Schließen" onclick="PF('newGuardianDialog').hide()" update=":guardianForm:guardianTable">
+                    </p:commandButton>
+	            
+	         </h:panelGrid>
+	    </p:dialog>
+		</h:form>
+		
+		
+    </ui:define>   
+</ui:composition>

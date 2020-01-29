@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/templates/main.xhtml">
+    <ui:define name ="content">
+
+        <h:outputStylesheet name="css/teacher-calendar.css"/>
+
+        <h:form>
+            <p:growl id="messagesMonth" showDetail="true" />
+
+            <!-- select child -->
+            <p:panelGrid columns="2" styleClass="scheduler-panel-grid">
+
+                <p:selectOneMenu id="childrenDropdown" value="#{childCalendarController.childID}" style="width:150px">
+                    <!--<p:ajax process="@this" event="valueChange" listener='#{childCalendarController.onChildChange()}' update="scheduleMonth"/>-->
+                    <f:selectItems value="#{childCalendarController.childrenItems}" />
+                </p:selectOneMenu>
+
+                <p:commandButton value="auswählen" update="scheduleMonth" icon="ui-icon-check" >
+                    <f:actionListener binding="#{childCalendarBean.init()}" />
+                </p:commandButton>
+
+            </p:panelGrid>
+
+
+            <!-- Scheduler -->
+            <h:panelGrid columnClasses="value" styleClass="scheduler-panel-grid">
+
+                <!-- rightHeaderTemplate value 'null' removes month/day/week buttons, define own buttons  -->
+                <p:schedule id="scheduleMonth"
+                            value="#{childCalendarBean.lazyEventModel}"
+                            widgetVar="scheduleMonth"
+                            timeZone="GMT+2"
+                            timeFormat=" "
+                            locale="de"
+                            draggable="false"
+                            resizeable="false"
+                            showWeekends="false"
+                            leftHeaderTemplate="today"
+                            centerHeaderTemplate="title"
+                            rightHeaderTemplate="prev, next">
+
+                    <!--<p:ajax event="dateSelect" listener="#{childCalendarBean.onEventSelect}" update="eventDialogID" oncomplete="PF('eventDialogMonth').show();" />-->
+                    <p:ajax event="eventSelect" listener="#{childCalendarBean.onEventSelect}" update="eventDialogID" oncomplete="PF('eventDialogMonth').show();" />
+                    <p:ajax event="eventMove" listener="#{childCalendarBean.onEventMove}" update="messagesMonth" />
+                    <p:ajax event="eventResize" listener="#{childCalendarBean.onEventResize}" update="messagesMonth" />
+
+                </p:schedule>
+
+            </h:panelGrid>
+
+
+            <!-- Dialog Box -->
+            <p:dialog id="eventDialogID" widgetVar="eventDialogMonth"
+                      header="#{childCalendarBean.event.data.getData(0).child.firstName} | #{childCalendarBean.event.data.getData(0).getDateString()}"
+                      showEffect="clip" hideEffect="explode" focus="lunchMonth">
+
+                <h:panelGrid id="eventDetailsMonth" columns="2">
+
+                    <p:outputLabel for="anwesend" value="Anwesend:" />
+                    <p:selectBooleanCheckbox id="anwesend" value="#{childCalendarBean.event.allDay}">
+                        <p:ajax event="change" update="eventDetailsMonth"/>
+                    </p:selectBooleanCheckbox>
+
+                    <p:outputLabel for="fromMonth" value="Von:" />
+                    <pe:timePicker id="fromMonth" value="#{childCalendarBean.event.data.getData(0).bringTime}" mode="popup" widgetVar="popupTimeWidget1" label="Popup time picker"
+                                   disabled="#{!childCalendarBean.event.allDay}"
+                                   minHour="#{childCalendarBean.event.data.getDataAsInteger(1)}"
+                                   maxHour="#{childCalendarBean.event.data.getDataAsInteger(2)}"
+                                   minMinute="#{childCalendarBean.event.data.getDataAsInteger(3)}"
+                                   maxMinute="#{childCalendarBean.event.data.getDataAsInteger(4)}"
+                    />
+
+                    <p:outputLabel for="toMonth" value="Bis:" />
+                    <pe:timePicker id="toMonth" value="#{childCalendarBean.event.data.getData(0).pickupTime}" mode="popup" widgetVar="popupTimeWidget2" label="Popup time picker"
+                                   disabled="#{!childCalendarBean.event.allDay}"
+                                   minHour="#{childCalendarBean.event.data.getDataAsInteger(1)}"
+                                   maxHour="#{childCalendarBean.event.data.getDataAsInteger(2)}"
+                                   minMinute="#{childCalendarBean.event.data.getDataAsInteger(3)}"
+                                   maxMinute="#{childCalendarBean.event.data.getDataAsInteger(4)}"
+                    />
+
+                    <p:outputLabel for="lunchMonth" value="Essen:" />
+                    <p:selectBooleanCheckbox id="lunchMonth" value="#{childCalendarBean.event.data.getData(0).lunch}" disabled="#{!childCalendarBean.event.allDay}"/>
+
+                    <p:outputLabel for="guardianDropdown" value="Person:" />
+                    <p:selectOneMenu id="guardianDropdown" var="guardian" value="#{childCalendarBean.event.data.getData(5).value}" disabled="#{!childCalendarBean.event.allDay}">
+                        <!--<p:ajax process="@this" event="valueChange" listener='#{childCalendarController.onChildChange()}' update="scheduleMonth"/>-->
+                        <f:selectItem itemLabel="auswählen" itemValue="-1" noSelectionOption="true"/>
+                        <f:selectItems value="#{childCalendarController.guardianItems}" />
+                    </p:selectOneMenu>
+
+                    <p:commandButton id="updateButtonMonth"
+                                     value="Speichern"
+                                     actionListener="#{childCalendarBean.updateChildCalendarEntry}"
+                                     oncomplete="PF('scheduleMonth').update(); PF('eventDialogMonth').hide();"
+                                     rendered="true" disabled="#{childCalendarBean.event.data.getDataAsBoolean(6)}"/>
+                </h:panelGrid>
+            </p:dialog>
+        </h:form>
+        <!-- German language support -->
+        <script type="text/javascript">
+            PrimeFaces.locales ['de'] = {
+                closeText: 'Schließen',
+                prevText: 'Zurück',
+                nextText: 'Weiter',
+                monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                dayNamesShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+                dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                weekHeader: 'Woche',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix:'',
+                timeOnlyTitle: 'Nur Zeit',
+                timeText: 'Zeit',
+                hourText: 'Stunde',
+                minuteText: 'Minute',
+                secondText: 'Sekunde',
+                currentText: 'Aktuelles Datum',
+                ampm: false,
+                month: 'Monat',
+                week: 'Woche',
+                day: 'Tag',
+                allDayText: 'Ganzer Tag'
+            };
+        </script>
+        <style type="text/css">
+            .value {
+                width: 1000px;
+            }
+        </style>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,327 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/templates/main.xhtml">
+  <ui:define name="content">
+    
+    <h:outputStylesheet name="css/teacher-calendar.css" />
+    
+    <h:form>
+      <!-- Scheduler -->  
+      <h:panelGrid columnClasses="value" styleClass="scheduler-panel-grid">
+        <p:schedule id="scheduleWeek" 
+                    value="#{teacherCalendarDayWeekBean.lazyEventModel}" 
+                    widgetVar="myschedule" 
+                    timeZone="GMT+2" 
+                    view="basicWeek" 
+                    locale="de"
+                    aspectRatio="2.8"
+                    draggable="false"
+                    resizeable="false"
+                    columnFormat="ddd D. MMM"
+                    ignoreTimezone="false"
+                    timeFormat=" "
+                    axisFormat="HH:mm"
+                    leftHeaderTemplate="today"
+                    centerHeaderTemplate="title"
+                    rightHeaderTemplate="prev, next">
+                    
+          <p:ajax event="eventSelect" 
+                  listener="#{teacherCalendarDayWeekBean.onEventSelect}" 
+                  update="eventDetailsWeek, emergencyContactPanelGridWeek, allergiesCommentAccordionWeek" 
+                  oncomplete="PF('eventDialogWeek').show();" />
+                  
+         <p:ajax event="dateSelect"
+                 listener="#{teacherCalendarDayWeekBean.onDateSelect}"
+                 update="addTeacherPanelGridWeek,addDayCarePanelGridWeek"
+                 oncomplete="PF('addTeacherDialogWeek').show();" />
+                 
+        </p:schedule> 
+      </h:panelGrid>
+        
+      <!-- Dialog Box -->
+      <p:dialog widgetVar="eventDialogWeek" header="Tagesansicht" showEffect="clip" hideEffect="clip">           
+        <!-- Child calendar / Child details -->
+        <p:panelGrid id="eventDetailsWeek" style="width: 100%;">
+          <!-- This fragment is rendered only if the event carries a child -->
+          <ui:fragment rendered="#{teacherCalendarDayWeekBean.event.description == 'child'}">
+            <p:row>
+              <p:column rowspan ="5" style="text-align: center;">
+                <p:graphicImage url="/resources/images/user_silhouette.png"/>
+              </p:column>
+              <p:column>
+                <p:outputLabel for="idWeek" value="ID:" style="font-weight: bold;" />
+              </p:column>
+              <p:column>
+                <h:outputText id="idWeek" value="#{teacherCalendarDayWeekBean.event.data.child.id}" />
+              </p:column>
+            </p:row>
+        
+            <p:row>
+              <p:column>
+                <p:outputLabel for="firstNameWeek" value="Vorname:" style="font-weight: bold;" />
+              </p:column>
+              <p:column>
+                <h:outputText id="firstNameWeek" value="#{teacherCalendarDayWeekBean.event.data.child.firstName}" />
+              </p:column>
+            </p:row>
+           
+            <p:row>
+              <p:column>
+                <p:outputLabel for="nameWeek" value="Name:" style="font-weight: bold;" />
+              </p:column>
+              <p:column>
+                <h:outputText id="nameWeek" value="#{teacherCalendarDayWeekBean.event.data.child.lastName}" />
+              </p:column>
+            </p:row>
+           
+            <p:row>
+              <p:column>
+                <p:outputLabel for="genderWeek" value="Geschlecht:" style="font-weight: bold;" />
+              </p:column>
+              <p:column>
+                <h:outputText id="genderWeek" value="#{teacherCalendarDayWeekBean.event.data.child.getGenderString()}" />
+              </p:column>
+            </p:row>
+           
+            <p:row>
+              <p:column>
+                <p:outputLabel for="birthdayWeek" value="Geburtstag:" style="font-weight: bold;" />
+              </p:column>
+              <p:column>
+                <h:outputText id="birthdayWeek" value="#{teacherCalendarDayWeekBean.event.data.child.birthday}">
+                  <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM YYYY"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                </h:outputText>
+              </p:column>
+            </p:row>
+           
+            <p:row>
+              <p:column colspan="3" styleClass="ui-widget-header">
+                <p:spacer height="0" />
+              </p:column>              
+            </p:row>
+          
+            <p:row>
+              <p:column>
+                <p:outputLabel for="bringTimeWeek" value="Bringzeit:" style="font-weight: bold;" />
+              </p:column>
+              <p:column colspan="2">
+                <p:outputLabel for="pickupTime" value="Abholzeit:" style="font-weight: bold;"/>
+              </p:column>
+            </p:row>          
+        
+            <p:row>
+              <p:column>
+                <p:calendar id="bringTimeWeek" value="#{teacherCalendarDayWeekBean.event.startDate}" timeZone="GMT+2" pattern="HH:mm" readonlyInput="true" />
+              </p:column>
+              <p:column colspan="2">
+                <p:calendar id="pickupTime" value="#{teacherCalendarDayWeekBean.event.endDate}" timeZone="GMT+2" pattern="HH:mm" readonlyInput="true" />
+              </p:column>
+            </p:row>
+             
+             <!-- Next two rows will be rendered if a alternative pickup person is set -->
+            <p:row rendered="#{teacherCalendarDayWeekBean.event.data.pickupPerson != null}"> 
+              <p:column colspan="3" style="text-align: center;font-weight: bold;background-color: red;">
+                <p:outputLabel for="pickupPersonFirstNameWeek" value="Abholperson:" />
+              </p:column>
+            </p:row>
+             
+            <p:row rendered="#{teacherCalendarDayWeekBean.event.data.pickupPerson != null}">
+              <p:column colspan="3" style="text-align: center;">
+                <h:outputText id="pickupPersonFirstNameWeek" value="#{teacherCalendarDayWeekBean.event.data.pickupPerson.firstName} " />
+                <h:outputText id="pickupPersonLastNameWeek" value="#{teacherCalendarDayWeekBean.event.data.pickupPerson.lastName}" />
+              </p:column>                
+            </p:row>
+              
+            <p:row>
+              <p:column style="font-weight: bold;text-align: center;">
+                <h:outputText value="Essen: " />                    
+              </p:column>
+              <p:column colspan="2" style="text-align: center;">
+                <p:selectBooleanCheckbox value="#{teacherCalendarDayWeekBean.event.data.hasLunch()}" disabled="true" />
+              </p:column>
+            </p:row>
+          </ui:fragment>
+        </p:panelGrid>
+        
+        <!-- Allergies and comment accordion panel -->
+        <p:accordionPanel id="allergiesCommentAccordionWeek" multiple="true" activeIndex="-1">
+          <p:tab title="Allergien:" rendered="#{teacherCalendarDayWeekBean.event.description == 'child'}">
+            <p:inputTextarea rows="3" cols="39" value="#{teacherCalendarDayWeekBean.event.data.child.allergies}" readonly="true"/>
+          </p:tab>
+       
+          <p:tab title="Kommentare:" rendered="#{teacherCalendarDayWeekBean.event.data == 'child'}">
+            <p:inputTextarea rows="3" cols="39" value="#{teacherCalendarDayWeekBean.event.data.child.comment}" readonly="true"/>
+          </p:tab>
+        </p:accordionPanel>
+   
+        <p:panelGrid id="emergencyContactPanelGridWeek" style="width: 100%;">
+          <!-- This fragment will be rendered if a child event is clicked -->
+          <ui:fragment rendered="#{teacherCalendarDayWeekBean.event.description == 'child'}">
+            <p:row>
+              <p:column colspan="3" style="text-align: center;font-weight: bold;">
+                <h:outputText id="emergencyContactWeek" value="Notfallkontakt:" />
+              </p:column>
+            </p:row>
+  
+            <p:row>
+              <p:column style="text-align: center;font-weight: bold;">
+                <h:outputText id="emergencyContactFirstNameWeek" value="#{teacherCalendarDayWeekBean.event.data.child.emergencyContact.firstName} " />
+                <h:outputText id="emergencyContactLastNameWeek" value="#{teacherCalendarDayWeekBean.event.data.child.emergencyContact.lastName}"/>
+              </p:column>
+            </p:row>
+       
+            <p:row>
+              <p:column style="text-align: center;font-weight: bold;">
+                <h:outputText id="emergencyContactTelephone" value="#{teacherCalendarDayWeekBean.event.data.child.emergencyContact.privateTelephone} "/>
+              </p:column>
+            </p:row>
+          </ui:fragment>
+        </p:panelGrid>   
+      </p:dialog>
+      
+      <!-- Dialog to add new teacher-->
+      <p:dialog widgetVar="addTeacherDialogWeek" header="Tagesansicht" showEffect="clip" hideEffect="clip" closable="false">
+        <h:panelGrid id="addTeacherPanelGridWeek" 
+                     columns="1" style="margin: 0 auto;" >
+                     
+               <p:outputLabel value="Einstellungen für den:"/>
+            
+              <h:inputText id="date" value="#{teacherCalendarDayWeekBean.event.startDate}" disabled="true" style="text-align:center;">
+              <f:convertDateTime type="date" 
+                                 pattern="dd. MMMM YYYY"
+                                 locale="de"
+                                 timeZone="Europe/Vienna" />
+              </h:inputText>
+            
+              <br />
+              <p:outputLabel value="Neuen Pädagogen eintragen:"/>
+              <p:selectOneListbox style="width: 100% !important;" 
+                                  value="#{teacherCalendarDayWeekBean.selectedTeacherEmail}" 
+                                  scrollHeight="200"
+                                  disabled="#{teacherCalendarDayWeekBean.dayCareClosed}">
+                <f:selectItem itemLabel="Pädagoge wählen:" itemDisabled="true"/>
+                <f:selectItems value="#{teacherCalendarDayWeekBean.teacherItems}"/>
+              </p:selectOneListbox>
+        </h:panelGrid>
+        
+        <br />
+        <p:spacer height="10pt" width="100%" styleClass="ui-widget-header"/>
+        <br /><br />
+        
+        <!-- This part is for the dayCareCalendar settings -->
+        <h:panelGrid id="addDayCarePanelGridWeek" columns="2">
+          <p:outputLabel value="Tagesplaner ändern:"/>
+          <br /><br />
+          
+          <h:outputLabel for="dayCareClosedWeek" value="Geschlossen: "/>
+          <p:selectBooleanCheckbox id="dayCareClosedWeek" label="Geschlossen" value="#{teacherCalendarDayWeekBean.dayCareClosed}">
+            <p:ajax event="change" 
+                    update="addDayCarePanelGridWeek, addTeacherPanelGridWeek" 
+                    listener="#{teacherCalendarDayWeekBean.setDayCareCalendarClosed()}"/>
+          </p:selectBooleanCheckbox>
+          
+          <h:outputLabel for="dayCareOpeningTimeWeek" value="Öffnungszeit: "/>
+          <pe:timePicker id="dayCareOpeningTimeWeek" 
+                         value="#{teacherCalendarDayWeekBean.dayCareCalendar.openingTime}" 
+                         mode="popup" 
+                         widgetVar="popupBtnTimeWidget"
+                         showOn="button"
+                         locale="de" 
+                         disabled="#{teacherCalendarDayWeekBean.dayCareClosed}"
+                         required="true"/>
+
+          <h:outputLabel for="dayCareClosingTimeWeek" value="Schließzeit: "/>
+          <pe:timePicker id="dayCareClosingTimeWeek" 
+                         value="#{teacherCalendarDayWeekBean.dayCareCalendar.closingTime}" 
+                         mode="popup" 
+                         widgetVar="popupBtnTimeWidget"
+                         showOn="button"
+                         locale="de" 
+                         disabled="#{teacherCalendarDayWeekBean.dayCareClosed}"
+                         required="true"/>
+
+          <h:outputLabel for="dayCareMaxAttendanceWeek" value="Maximalbelegung: "/>
+          <p:inputMask id="dayCareMaxAttendanceWeek" 
+                       value="#{teacherCalendarDayWeekBean.dayCareCalendar.maxAttendance}" 
+                       maxlength="2"
+                       disabled="#{teacherCalendarDayWeekBean.dayCareClosed}" />
+          
+          <h:outputLabel for="dayCareMeal1Week" value="Menü 1: " />
+          <p:inputText id="dayCareMeal1Week" 
+                       value="#{teacherCalendarDayWeekBean.dayCareCalendar.meal1Description}"
+                       disabled="#{teacherCalendarDayWeekBean.dayCareClosed}" />
+          
+          <h:outputLabel for="dayCareMeal2Week" value="Menü 2: " />
+          <p:inputText id="dayCareMeal2Week" 
+                       value="#{teacherCalendarDayWeekBean.dayCareCalendar.meal2Description}"
+                       disabled="#{teacherCalendarDayWeekBean.dayCareClosed}" />
+                       
+          <h:outputLabel for="dayCareMealPriceWeek" value="Preis: " />
+          <p:inputMask id="dayCareMealPriceWeek" 
+                       mask="9.9"
+                       value="#{teacherCalendarDayWeekBean.dayCareCalendar.mealPrice}"
+                       disabled="#{teacherCalendarDayWeekBean.dayCareClosed}" />
+        </h:panelGrid>
+        <br /><br />
+        <p:commandButton id="addDayCareCalendarWeek"
+                 value="Speichern"
+                 actionListener="#{teacherCalendarDayWeekBean.saveTeacherCalendarEntry()}"
+                 oncomplete="PF('addTeacherDialogWeek').hide()"
+                 update="scheduleWeek">
+          <f:actionListener binding="#{teacherCalendarDayWeekBean.saveDayCareCalendar()}"/>                    
+          <f:actionListener binding="#{teacherCalendarDayWeekBean.flushDayCareCalendar()}" />
+        </p:commandButton>
+        
+        <p:commandButton value="Abbrechen" oncomplete="PF('addTeacherDialogWeek').hide()">
+          <!-- Set attribute in bean back to null, to avoid preselected items -->
+          <f:setPropertyActionListener value="null" target="#{teacherCalendarDayWeekBean.selectedTeacherEmail}" />
+        </p:commandButton>  
+     </p:dialog>
+    </h:form>
+    
+    <!-- German language support -->
+    <script type="text/javascript">
+         PrimeFaces.locales ['de'] = {
+                 closeText: 'Schließen',
+                 prevText: 'Zurück',
+                 nextText: 'Weiter',
+                 monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                 monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                 dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                 dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                 dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                 weekHeader: 'Woche',
+                 firstDay: 1,
+                 isRTL: false,
+                 showMonthAfterYear: false,
+                 yearSuffix:'',
+                 timeOnlyTitle: 'Nur Zeit',
+                 timeText: 'Zeit',
+                 hourText: 'Stunde',
+                 minuteText: 'Minute',
+                 secondText: 'Sekunde',
+                 currentText: 'Aktuelles Datum',
+                 ampm: false,
+                 month: 'Monat',
+                 week: 'Woche',
+                 day: 'Tag',
+                 allDayText: 'Ganzer Tag'
+        };
+    </script>
+    <style type="text/css">
+     .value {
+         width: 2000px;
+     }
+    </style>
+  </ui:define>
+</ui:composition>

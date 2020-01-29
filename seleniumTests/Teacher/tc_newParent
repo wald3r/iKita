@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>tc_newParent</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">tc_newParent</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/secured/welcome.xhtml</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='j_idt7:j_idt8']/ul/li[3]/ul/li/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='personForm:j_idt31']/ul/li/a/span[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:parentTable:j_idt40</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=personForm:firstName1</td>
+	<td>New</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=personForm:lastName1</td>
+	<td>Parent</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=personForm:mail1</td>
+	<td>newParent@ikita.at</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt165</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>//div[@id='personForm:confirmationDialog']/div</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt207</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//table[@id='personForm:roles11']/tbody/tr/td[3]/div/div[2]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt165</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>//div[@id='personForm:confirmationDialog']/div</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt207</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt166</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='personForm:inacparentTable_data']/tr/td</td>
+	<td>New</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='personForm:inacparentTable_data']/tr/td[2]</td>
+	<td>Parent</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=span.ui-menuitem-text</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=span.ui-panel-title</td>
+	<td>Neuigkeiten</td>
+</tr>
+</tbody></table>
+</body>
+</html>

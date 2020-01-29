@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/templates/main.xhtml">
+  <ui:define name ="content">
+    
+    <h:outputStylesheet name="css/teacher-calendar.css"/>
+  
+    <h:form>
+    
+      <!-- Scheduler -->
+      <h:panelGrid columnClasses="value" styleClass="scheduler-panel-grid">
+          
+        <p:schedule id="scheduleMonth" 
+                    value="#{teacherCalendarMonthBean.lazyEventModel}" 
+                    widgetVar="scheduleMonth" 
+                    timeFormat=" " 
+                    timeZone="GMT+2" 
+                    locale="de"
+                    aspectRatio="1.5"
+                    draggable="false"
+                    resizeable="false"
+                    leftHeaderTemplate="today"
+                    centerHeaderTemplate="title"
+                    rightHeaderTemplate="prev, next">
+                    
+          <p:ajax event="dateSelect" 
+                  listener="#{teacherCalendarMonthBean.onDateSelect}" 
+                  update="eventPanelGridMonth" 
+                  oncomplete="PF('eventDialogMonth').show();" />
+                  
+          <p:ajax event="eventSelect" 
+                  listener="#{teacherCalendarMonthBean.onEventSelect}" 
+                  update="eventPanelGridMonth" 
+                  oncomplete="PF('eventDialogMonth').show();" />
+
+        </p:schedule>
+      </h:panelGrid>
+      
+      <!-- Dialog Box to add a new teacher -->
+      <p:dialog widgetVar="eventDialogMonth" 
+                header="Tagesansicht" 
+                showEffect="clip" 
+                hideEffect="clip" 
+                closable="false" >
+        
+        <h:panelGrid id="eventPanelGridMonth" columns="2">
+          
+          <!-- Rendered if teacher event is selected -->
+          <ui:fragment rendered="#{teacherCalendarMonthBean.event.description == 'teacher'}">  
+            
+             <p:outputLabel value="Einstellungen für den:"/>
+            <br />    
+            <h:inputText id="teacherDate" value="#{teacherCalendarMonthBean.event.startDate}" disabled="true" style="text-align:center;">
+              <f:convertDateTime type="date" 
+                                 pattern="dd. MMMM YYYY"
+                                 locale="de"
+                                 timeZone="Europe/Vienna" />
+            </h:inputText>
+            <br />
+            <p:outputLabel value="Neuen Pädagogen eintragen:"/>
+            <br />  
+            <p:selectOneListbox style="width: 100% !important;" value="#{teacherCalendarMonthBean.selectedTeacherEmail}" scrollHeight="200">
+              <f:selectItem itemLabel="Pädagoge wählen:" itemDisabled="true"/>
+              <f:selectItems value="#{teacherCalendarMonthBean.teacherItems}"/>
+            </p:selectOneListbox>
+            <br /><br />            
+            <p:commandButton id="addTeacher" 
+                             value="Speichern" 
+                             actionListener="#{teacherCalendarMonthBean.saveTeacherCalendarEntry()}" 
+                             oncomplete="PF('scheduleMonth').update();PF('eventDialogMonth').hide();" />
+            
+            
+            <p:commandButton value="Abbrechen" oncomplete="PF('eventDialogMonth').hide()">
+              <f:setPropertyActionListener value="null" target="#{teacherCalendarMonthBean.selectedTeacherEmail}" />
+            </p:commandButton>
+              
+          </ui:fragment>
+         
+          <!-- Rendered if event date event is clicked -->
+          <ui:fragment rendered="#{teacherCalendarMonthBean.dayCareCalendar != null}">
+            <h:panelGrid columns="2" cellspacing="3">
+            <p:outputLabel value="Tagesplaner ändern:"/>
+            <br /><br />
+              
+              <h:outputLabel for="dayCareDateMonth" value="Datum: " />
+              <p:inputText id="dayCareDateMonth" value="#{teacherCalendarMonthBean.dayCareCalendar.date}" disabled="true">
+                <f:convertDateTime type="date" 
+                   pattern="dd. MMMM YYYY"
+                   locale="de"
+                   timeZone="Europe/Vienna" />
+              </p:inputText>
+              
+              <h:outputLabel for="dayCareClosedMonth" value="Geschlossen: "/>
+              <p:selectBooleanCheckbox id="dayCareClosedMonth" label="Geschlossen" value="#{teacherCalendarMonthBean.dayCareClosed}">
+                <p:ajax event="change" update="eventPanelGridMonth" listener="#{teacherCalendarMonthBean.setDayCareCalendarClosed()}"/>
+              </p:selectBooleanCheckbox>
+              
+              <h:outputLabel for="dayCareOpeningTimeMonth" value="Öffnungszeit: "/>
+              <pe:timePicker id="dayCareOpeningTimeMonth" 
+                             value="#{teacherCalendarMonthBean.dayCareCalendar.openingTime}" 
+                             mode="popup" 
+                             widgetVar="popupBtnTimeWidget"
+                             showOn="button"
+                             locale="de" 
+                             disabled="#{teacherCalendarMonthBean.dayCareClosed}"
+                             required="true"/>
+
+              <h:outputLabel for="dayCareClosingTimeMonth" value="Schließzeit: "/>
+              <pe:timePicker id="dayCareClosingTimeMonth" 
+                             value="#{teacherCalendarMonthBean.dayCareCalendar.closingTime}" 
+                             mode="popup" 
+                             widgetVar="popupBtnTimeWidget"
+                             showOn="button"
+                             locale="de" 
+                             disabled="#{teacherCalendarMonthBean.dayCareClosed}"
+                             required="true"/>
+                             
+              <h:outputLabel for="dayCareMaxAttendanceMonth" value="Maximalbelegung: "/>
+              <p:inputMask id="dayCareMaxAttendanceMonth" 
+                           value="#{teacherCalendarMonthBean.dayCareCalendar.maxAttendance}" 
+                           maxlength="2"
+                           disabled="#{teacherCalendarMonthBean.dayCareClosed}" />
+
+              <h:outputLabel for="dayCareMeal1Month" value="Menü 1: " />
+              <p:inputText id="dayCareMeal1Month" 
+                           value="#{teacherCalendarMonthBean.dayCareCalendar.meal1Description}"
+                           disabled="#{teacherCalendarMonthBean.dayCareClosed}" />
+              
+              <h:outputLabel for="dayCareMeal2Month" value="Menü 2: " />
+              <p:inputText id="dayCareMeal2Month" 
+                           value="#{teacherCalendarMonthBean.dayCareCalendar.meal2Description}"
+                           disabled="#{teacherCalendarMonthBean.dayCareClosed}" />
+                           
+              <h:outputLabel for="dayCareMealPriceMonth" value="Preis: " />
+              <p:inputMask id="dayCareMealPriceMonth" 
+                           mask="9.9"
+                           value="#{teacherCalendarMonthBean.dayCareCalendar.mealPrice}"
+                           disabled="#{teacherCalendarMonthBean.dayCareClosed}" /> 
+            </h:panelGrid>
+            <br /><br />
+            <p:commandButton id="addDayCareCalendarMonth" 
+                             value="Speichern" 
+                             actionListener="#{teacherCalendarMonthBean.saveDayCareCalendar()}" 
+                             oncomplete="PF('scheduleMonth').update();PF('eventDialogMonth').hide();">
+              <f:actionListener binding="#{teacherCalendarMonthBean.flushDayCareCalendar()}" />
+            </p:commandButton>
+              
+            <p:commandButton value="Abbrechen" oncomplete="PF('eventDialogMonth').hide()">
+              <f:actionListener binding="#{teacherCalendarMonthBean.flushDayCareCalendar()}" />
+            </p:commandButton>
+          
+          </ui:fragment>
+        </h:panelGrid>
+        
+      </p:dialog>    
+    </h:form>
+    <!-- German language support -->
+    <script type="text/javascript">
+      PrimeFaces.locales ['de'] = {
+      	    closeText: 'Schließen',
+      	    prevText: 'Zurück',
+      	    nextText: 'Weiter',
+      	    monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+      	    monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+      	    dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+      	    dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+      	    dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+      	    weekHeader: 'Woche',
+      	    firstDay: 1,
+      	    isRTL: false,
+      	    showMonthAfterYear: false,
+      	    yearSuffix:'',
+      	    timeOnlyTitle: 'Nur Zeit',
+      	    timeText: 'Zeit',
+      	    hourText: 'Stunde',
+      	    minuteText: 'Minute',
+      	    secondText: 'Sekunde',
+      	    currentText: 'Aktuelles Datum',
+      	    ampm: false,
+      	    month: 'Monat',
+      	    week: 'Woche',
+      	    day: 'Tag',
+      	    allDayText: 'Ganzer Tag'
+     };        
+    </script>
+    <style type="text/css">
+        .value {
+            width: 1000px;
+        }
+    </style>
+  </ui:define>
+</ui:composition>

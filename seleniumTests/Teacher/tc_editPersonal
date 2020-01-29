@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>tc_editPersonal</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">tc_editPersonal</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/secured/welcome.xhtml</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Personen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='personForm:j_idt31']/ul/li[3]/a/span[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:teacherTable:2:j_idt57</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=personForm:comment</td>
+	<td>Here is a comment!</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt97</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotBodyText</td>
+	<td>id=personForm:comment</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=personForm:firstname</td>
+	<td>Edit</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt96</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>//div[@id='personForm:confirmationDialog']/div</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt100</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:j_idt98</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='personForm:teacherTable_data']/tr[3]/td</td>
+	<td>Edit</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=span.ui-menuitem-text</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=span.ui-panel-title</td>
+	<td>Neuigkeiten</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

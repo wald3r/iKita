@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>iKiTa</title>
+
+    <h:outputStylesheet library="css" name="global.css"/>
+</h:head>
+
+<h:body styleClass="body" style="margin:10px;">
+    <div id="page">
+        
+        <img src="/resources/images/banner.png"/>
+
+        <div id="header" class="center">
+            <ui:include src="/WEB-INF/includes/header.xhtml"/>
+        </div>
+
+        <h:messages rendered="#{sessionInfoBean.hasRole('ADMIN')}" globalOnly="false"/>
+
+        <div id="content" class="contentClass">
+            <ui:insert name="content">Content</ui:insert>
+        </div>
+
+        <div id="footer" style="margin-top: 10px;">
+            <ui:include src="/WEB-INF/includes/footer.xhtml"/>
+        </div>
+
+    </div>
+
+</h:body>
+</html>

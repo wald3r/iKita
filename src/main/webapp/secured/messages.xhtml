@@ -1,0 +1,382 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- Author: Fabio.Valentini@student.uibk.ac.at -->
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name="content">
+
+        <h:form id="messageHeader">
+            <p:panelGrid columns="2"
+                         cellpadding="5"
+                         style="width: 100%; text-align: center"
+                         layout="grid">
+                <p:commandButton value="Neue Nachricht"
+                                 title="Neue Nachricht"
+                                 icon="ui-icon-plus"
+                                 update=":newMessageDialog"
+                                 oncomplete="PF('newMessageDialog').show()"/>
+                <p:commandButton value="Neue Öffentliche Nachricht"
+                                 title="Neue Öffentliche Nachricht (Administratoren und Pädagogen)"
+                                 icon="ui-icon-plus"
+                                 update=":newBroadcastDialog"
+                                 oncomplete="PF('newBroadcastDialog').show()"
+                                 disabled="#{!(sessionInfoBean.hasRole('ADMIN') or sessionInfoBean.hasRole('TEACHER'))}"/>
+            </p:panelGrid>
+        </h:form>
+
+        <p:panelGrid columns="2"
+                     cellpadding="5"
+                     style="width: 100%"
+                     layout="grid">
+
+            <p:outputPanel id="unreadMessagePanel">
+                <!-- Ungelesene Nachrichten -->
+                <h:outputText value="Keine Ungelesenen Nachrichten!"
+                              rendered="#{messageController.unreadMessageList.size() == 0}"/>
+
+                <p:dataList id="messages"
+                            var="message"
+                            type="definition"
+                            rendered="#{messageController.unreadMessageList.size() > 0}"
+                            value="#{messageController.unreadMessageList}"
+                            style="text-align: left">
+
+                    <f:facet name="header">
+                        <h:form id="unreadMessagesHeader">
+                            <h:outputText value="Ungelesene Nachrichten"
+                                          style="margin-right: 5%"/>
+                            <p:commandButton title="Aktualisieren"
+                                             icon="ui-icon-refresh"
+                                             update=":unreadMessagePanel"
+                                             action="#{messageController.refresh()}"/>
+                        </h:form>
+                    </f:facet>
+
+                    <p:outputPanel>
+                        <p:outputPanel>
+                            <h:panelGrid columns="2"
+                                         cellpadding="5"
+                                         layout="grid">
+                                <h:outputText value="Betreff:"/>
+                                <h:outputText value="#{message.subject}"/>
+
+                                <h:outputText value="Sender:"/>
+                                <h:outputText
+                                        value="#{message.sender.firstName} #{message.sender.lastName}"/>
+
+                                <h:outputText value="Gesendet:"/>
+                                <h:outputText value="#{message.time}">
+                                    <f:convertDateTime type="both"
+                                                       pattern="dd. MMMM YYYY 'um' HH:mm:ss"
+                                                       locale="de"
+                                                       timeZone="Europe/Vienna"/>
+                                </h:outputText>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="1" cellpadding="5"
+                                         layout="grid">
+                                <h:outputText value="#{message.content}" style="width: 80%"/>
+                            </h:panelGrid>
+
+                            <h:panelGrid rendered="#{message.responseTo != null}"
+                                         columns="1"
+                                         cellpadding="5"
+                                         layout="grid">
+                                <h:outputText value="Ursprüngliche Nachricht:"/>
+                                <h:outputText value="#{message.responseTo.content}"
+                                              style="width: 80%"/>
+                            </h:panelGrid>
+                        </p:outputPanel>
+
+                        <p:outputPanel>
+                            <h:form id="unReadMessageActions">
+                                <h:panelGrid columns="3"
+                                             cellpadding="5"
+                                             layout="grid">
+                                    <p:commandButton title="Gelesen"
+                                                     icon="ui-icon-check"
+                                                     update=":unreadMessagePanel :readMessagePanel"
+                                                     action="#{messageController.doMarkAsRead(message)}"/>
+                                    <p:commandButton title="Antworten"
+                                                     icon="ui-icon-arrowreturn-1-w"
+                                                     update=":newResponseDialog"
+                                                     action="#{messageController.setOriginal(message)}"
+                                                     oncomplete="PF('newResponseDialog').show();"/>
+                                    <p:commandButton title="Löschen"
+                                                     icon="ui-icon-trash"
+                                                     update=":unreadMessagePanel"
+                                                     action="#{messageController.deleteMessage(message)}"/>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <p:separator/>
+                </p:dataList>
+            </p:outputPanel>
+
+            <p:outputPanel id="readMessagePanel">
+                <!-- Gelesene Nachrichten -->
+                <h:outputText value="Keine gelesenen Nachrichten!"
+                              rendered="#{messageController.readMessageList.size() == 0}"/>
+
+                <p:dataList id="readMessages"
+                            var="readMessage"
+                            type="definition"
+                            rendered="#{messageController.readMessageList.size() > 0}"
+                            value="#{messageController.readMessageList}"
+                            style="text-align: left">
+
+                    <f:facet name="header">
+                        <h:form id="readMessageHeader">
+                            <h:outputText value="Gelesene Nachrichten"
+                                          style="margin-right: 5%"/>
+                            <p:commandButton title="Aktualisieren"
+                                             icon="ui-icon-refresh"
+                                             update=":readMessagePanel"
+                                             action="#{messageController.refresh()}"/>
+                        </h:form>
+                    </f:facet>
+
+                    <p:outputPanel>
+                        <p:outputPanel>
+                            <h:panelGrid columns="2"
+                                         cellpadding="5"
+                                         layout="grid">
+                                <h:outputText value="Betreff:"/>
+                                <h:outputText value="#{readMessage.subject}"/>
+
+                                <h:outputText value="Sender:"/>
+                                <h:outputText
+                                        value="#{readMessage.sender.firstName} #{readMessage.sender.lastName}"/>
+
+                                <h:outputText value="Gesendet:"/>
+                                <h:outputText value="#{readMessage.time}">
+                                    <f:convertDateTime type="both"
+                                                       pattern="dd. MMMM YYYY 'um' HH:mm:ss"
+                                                       locale="de"
+                                                       timeZone="Europe/Vienna"/>
+                                </h:outputText>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="1" cellpadding="5"
+                                         layout="grid">
+                                <h:outputText value="#{readMessage.content}" style="width: 80%"/>
+                            </h:panelGrid>
+                        </p:outputPanel>
+
+                        <p:outputPanel>
+                            <h:form id="readMessageActions">
+                                <h:panelGrid columns="3"
+                                             cellpadding="5"
+                                             layout="grid">
+                                    <p:commandButton title="Nicht Gelesen"
+                                                     icon="ui-icon-cancel"
+                                                     update=":unreadMessagePanel :readMessagePanel"
+                                                     action="#{messageController.doMarkAsUnread(readMessage)}"/>
+
+                                    <p:commandButton title="Antworten"
+                                                     icon="ui-icon-arrowreturn-1-w"
+                                                     update=":newResponseDialog"
+                                                     action="#{messageController.setOriginal(readMessage)}"
+                                                     oncomplete="PF('newResponseDialog').show();"/>
+                                    <p:commandButton title="Löschen"
+                                                     icon="ui-icon-trash"
+                                                     update=":readMessagePanel"
+                                                     action="#{messageController.deleteMessage(readMessage)}"/>
+                                </h:panelGrid>
+                            </h:form>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <p:separator/>
+                </p:dataList>
+            </p:outputPanel>
+
+        </p:panelGrid>
+
+
+        <p:dialog header="Antworten"
+                  id="newResponseDialog"
+                  widgetVar="newResponseDialog"
+                  modal="true">
+            <!-- Response Dialog with pre-filled Subject and Recipient -->
+            <h:form>
+                <p:panelGrid columns="2"
+                             cellpadding="5">
+
+                    <h:outputText value="Empfänger"/>
+                    <h:outputText value="#{messageController.original.sender}"/>
+
+                    <h:outputText value="Betreff"/>
+                    <h:outputText value="#{messageController.original.subject}"/>
+
+                    <p:outputLabel for="responseDialogContent" value="Nachricht"/>
+                    <p:inputTextarea id="responseDialogContent"
+                                     value="#{messageController.newContent}"
+                                     rows="10"
+                                     cols="80"
+                                     counter="newResponseRemChars"
+                                     maxlength="500"
+                                     required="true"
+                                     counterTemplate="Noch {0} Zeichen verfügbar."
+                                     autoResize="true"/>
+
+                    <h:outputText value=""/>
+                    <h:outputText id="newResponseRemChars"/>
+
+                    <p:commandButton id="newResponseSendButton"
+                                     value="Senden"
+                                     update=":unreadMessagePanel"
+                                     action="#{messageController.sendResponse()}"
+                                     oncomplete="PF('newResponseDialog').hide()"/>
+                    <p:commandButton id="newResponseCancelButton"
+                                     value="Abbrechen"
+                                     update=":newResponseDialog"
+                                     action="#{messageController.reset()}"
+                                     oncomplete="PF('newResponseDialog').hide()"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+
+        <p:dialog header="Neue Neuigkeit erstellen"
+                  id="newBroadcastDialog"
+                  widgetVar="newBroadcastDialog"
+                  modal="true">
+            <!-- New Broadcast Dialog with Subject Input and Content Input -->
+            <h:form>
+                <p:panelGrid columns="2"
+                             cellpadding="5">
+                    <h:outputLabel for="newBroadcastSubject"
+                                   value="Betreff"/>
+                    <h:inputText id="newBroadcastSubject"
+                                 value="#{messageController.newSubject}"
+                                 required="true"/>
+
+                    <p:outputLabel for="newBroadcastContent"
+                                   value="Nachricht"/>
+                    <p:inputTextarea id="newBroadcastContent"
+                                     value="#{messageController.newContent}"
+                                     rows="10" cols="80"
+                                     counter="newBroadcastContentRemChars"
+                                     maxlength="500"
+                                     required="true"
+                                     counterTemplate="Noch {0} Zeichen verfügbar."
+                                     autoResize="true"/>
+
+                    <h:outputText value=""/>
+                    <h:outputText id="newBroadcastContentRemChars"/>
+
+                    <p:commandButton id="newBroadcastSendButton"
+                                     value="Senden"
+                                     action="#{messageController.sendBroadcast()}"
+                                     oncomplete="PF('newBroadcastDialog').hide()"/>
+                    <p:commandButton id="newBroadcastCancelButton"
+                                     value="Abbrechen"
+                                     update=":newBroadcastDialog"
+                                     action="#{messageController.reset()}"
+                                     oncomplete="PF('newBroadcastDialog').hide()"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+
+        <p:dialog header="Neue Nachricht senden"
+                  id="newMessageDialog"
+                  widgetVar="newMessageDialog"
+                  modal="true">
+            <!-- New Message Dialog with Recipient Chooser, Subject Input and Content Input -->
+            <h:form>
+                <p:panelGrid columns="2"
+                             cellpadding="5">
+
+                    <h:outputLabel for="newMessageRecipient"
+                                   value="Empfänger"/>
+                    <p:selectOneMenu id="newMessageRecipient"
+                                     value="#{messageController.newRecipient}"
+                                     label="Empfänger wählen"
+                                     required="true"
+                                     filter="true"
+                                     filterMatchMode="startsWith">
+                        <f:selectItem itemLabel="Empfänger wählen" itemValue=""/>
+                        <f:selectItems value="#{personService.loadAll()}"/>
+                        <p:ajax event="change" update="@this"/>
+                    </p:selectOneMenu>
+
+                    <h:outputLabel for="newMessageSubject"
+                                   value="Betreff"
+                                   required="true"/>
+                    <h:inputText id="newMessageSubject"
+                                 value="#{messageController.newSubject}"/>
+
+                    <p:outputLabel for="newMessageContent"
+                                   value="Nachricht"/>
+                    <p:inputTextarea id="newMessageContent"
+                                     value="#{messageController.newContent}"
+                                     rows="10" cols="80"
+                                     required="true"
+                                     counter="newMessageContentRemChars"
+                                     maxlength="500"
+                                     counterTemplate="Noch {0} Zeichen verfügbar."
+                                     autoResize="true"/>
+
+                    <h:outputText value=""/>
+                    <h:outputText id="newMessageContentRemChars"/>
+
+                    <p:commandButton id="newMessageSendButton"
+                                     value="Senden"
+                                     update=":unreadMessagePanel"
+                                     action="#{messageController.sendMessage()}"
+                                     oncomplete="PF('newMessageDialog').hide()"/>
+                    <p:commandButton id="newMessageCancelButton"
+                                     value="Abbrechen"
+                                     update=":newMessageDialog"
+                                     action="#{messageController.reset()}"
+                                     oncomplete="PF('newMessageDialog').hide()"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+
+        <!-- German language support -->
+        <script type="text/javascript">
+            PrimeFaces.locales ['de'] = {
+                closeText: 'Schließen',
+                prevText: 'Zurück',
+                nextText: 'Weiter',
+                monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+                monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+                dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                weekHeader: 'Woche',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+                timeOnlyTitle: 'Nur Zeit',
+                timeText: 'Zeit',
+                hourText: 'Stunde',
+                minuteText: 'Minute',
+                secondText: 'Sekunde',
+                currentText: 'Aktuelles Datum',
+                ampm: false,
+                month: 'Monat',
+                week: 'Woche',
+                day: 'Tag',
+                allDayText: 'Ganzer Tag'
+            };
+        </script>
+
+    </ui:define>
+
+</ui:composition>

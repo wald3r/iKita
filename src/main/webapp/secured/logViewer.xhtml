@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- Author: Fabio.Valentini@student.uibk.ac.at -->
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name="content">
+
+        <p:panelGrid columns="1" cellpadding="5" layout="grid">
+            <p:dataTable id="logMessages"
+                         var="logMessage"
+                         emptyMessage="Keine Einträge"
+                         value="#{logController.logMessageList}"
+                         style="text-align: center">
+
+                <f:facet name="header">
+                    <h:form>
+                        <h:outputText value="Log-Nachrichten für #{logController.dateString}"
+                                      style="margin-right: 5%"/>
+
+                        <p:commandButton title="Aktualisieren" icon="ui-icon-refresh"
+                                         action="#{logController.refresh()}"
+                                         update=":logMessages"/>
+                        <p:commandButton title="Vorheriger Tag" icon="ui-icon-arrow-1-w"
+                                         action="#{logController.skipOneDayBackward}"
+                                         update=":logMessages"/>
+                        <p:commandButton title="Nächster Tag" icon="ui-icon-arrow-1-e"
+                                         action="#{logController.skipOneDayForward}"
+                                         update=":logMessages"/>
+                    </h:form>
+                </f:facet>
+
+                <p:column headerText="Zeit">
+                    <h:outputText value="#{logMessage.time}">
+                        <f:convertDateTime type="both"
+                                           pattern="dd. MMMM YYYY 'um' HH:mm:ss"
+                                           locale="de"
+                                           timeZone="Europe/Vienna"/>
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Typ">
+                    <h:outputText value="#{logController.getLogTypeString(logMessage)}"/>
+                </p:column>
+
+                <p:column headerText="Auslöser">
+                    <h:outputText value="#{logMessage.origin}"/>
+                </p:column>
+
+                <p:column headerText="Nachricht">
+                    <h:outputText value="#{logMessage.message}"/>
+                </p:column>
+
+            </p:dataTable>
+
+            <p:outputPanel style="margin-top: 10px; margin-bottom: 10px">
+                <h:form>
+                    <p:panelGrid columns="3">
+                        <h:outputText value="Filter nach Log-Nachrichten-Typ:"/>
+                        <p:selectOneRadio value="#{logController.logMessageType}">
+                            <f:selectItems value="#{logController.logMessageTypes}"/>
+                        </p:selectOneRadio>
+                        <p:commandButton title="Anwenden" icon="ui-icon-check"
+                                         action="#{logController.refresh}"
+                                         update=":logMessages"/>
+                    </p:panelGrid>
+                </h:form>
+            </p:outputPanel>
+        </p:panelGrid>
+
+
+        <!-- German language support -->
+        <script type="text/javascript">
+            PrimeFaces.locales ['de'] = {
+                closeText: 'Schließen',
+                prevText: 'Zurück',
+                nextText: 'Weiter',
+                monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                weekHeader: 'Woche',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix:'',
+                timeOnlyTitle: 'Nur Zeit',
+                timeText: 'Zeit',
+                hourText: 'Stunde',
+                minuteText: 'Minute',
+                secondText: 'Sekunde',
+                currentText: 'Aktuelles Datum',
+                ampm: false,
+                month: 'Monat',
+                week: 'Woche',
+                day: 'Tag',
+                allDayText: 'Ganzer Tag'
+            };
+        </script>
+
+    </ui:define>
+
+</ui:composition>

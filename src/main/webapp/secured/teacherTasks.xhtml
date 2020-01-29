@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+    <ui:define name ="content">
+        <h:form id="taskForm">
+	   <p:dataTable id="undoneTaskTable" var="undonetask" value="#{taskListController.allUndoneTasks}" style="text-align: center" 	
+                filteredValue="#{taskListController.filteredTasks1}"
+                widgetVar="filteredTasks1"
+		emptyMessage="Moment gibt es keine offenen Aufgaben!"
+                rows="10"
+	        paginator="true"
+                paginatorPosition="bottom"
+                paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+	        rowsPerPageTemplate="5,10,15,20,25">
+		<f:facet name="header">
+			 <p:commandButton title="Neue Aufgabe erstellen" icon="ui-icon-circle-plus" action="#{taskBean.clearSettings}" update=":taskForm:newTaskDialog" 
+                          oncomplete="PF('newTaskDialog').show ()"> 
+	    		</p:commandButton>
+			Offene Aufgaben
+                        <p:outputPanel style="float:right">
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredTasks1').filter()" style="width:150px" />
+                        </p:outputPanel>
+		</f:facet> 
+                <p:column headerText="Person" filterBy="#{undonetask.person.firstName} #{undonetask.person.lastName}" filterStyle="display:none" >
+                    <h:outputText value="#{undonetask.person.firstName} #{undonetask.person.lastName}"/>
+                </p:column>
+                 <p:column headerText="Start" filterBy="#{undonetask.startDate}" filterStyle="display:none">
+                    <h:outputText value="#{undonetask.startDate}">
+                            <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Ende" filterBy="#{undonetask.endDate}" filterStyle="display:none">
+                    <h:outputText value="#{undonetask.endDate}">
+                            <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Titel" filterBy="#{undonetask.title}" filterStyle="display:none">
+                    <h:outputText value="#{undonetask.title}"/>
+                </p:column>
+		        <p:column headerText="Wichtig">
+                    <h:selectBooleanCheckbox value="#{undonetask.urgent}" disabled="true"/>
+                </p:column>
+		        <p:column style="width:100px;text-align: center">
+                    <p:commandButton update=":taskForm:taskEditDialog" oncomplete="PF('taskEditDialog').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                        <f:setPropertyActionListener value="#{undonetask}" target="#{taskBean.task}" />
+                    </p:commandButton>
+		            <p:commandButton update=":taskForm:doneTaskTable,:taskForm:undoneTaskTable" icon="ui-icon-note" title="Abschließen" action="#{taskBean.finishTask}">
+                        <f:setPropertyActionListener value="#{undonetask}" target="#{taskBean.task}" />
+                    </p:commandButton>
+		        </p:column>
+            </p:dataTable>
+
+	    <p:separator />
+		
+	    <p:dataTable id="doneTaskTable" var="donetask" value="#{taskListController.allDoneTasks}" style="text-align: center" 
+                 filteredValue="#{taskListController.filteredTasks2}"
+                 widgetVar="filteredTasks2"
+                 emptyMessage="Es gibt momentan keine abgeschlossenen Aufgaben!"
+                 rows="10"
+	         paginator="true"
+                 paginatorPosition="bottom"
+	         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+	         rowsPerPageTemplate="5,10,15,20,25">
+		<f:facet name="header">
+		
+			Abgeschlossene Aufgaben
+
+                        <p:spacer width="8"></p:spacer>  
+                        <p:outputPanel style="float:right; margin-top: -30px" >
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredTasks2').filter()" style="width:150px" />
+                        </p:outputPanel>
+
+		</f:facet>                
+                <p:column headerText="Person" filterBy="#{donetask.person.firstName} #{donetask.person.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{donetask.person.firstName} #{donetask.person.lastName}"/>
+                </p:column>
+                 <p:column headerText="Start" filterBy="#{donetask.startDate}" filterStyle="display:none">
+                    <h:outputText value="#{donetask.startDate}">
+                            <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="Ende" filterBy="#{donetask.endDate}" filterStyle="display:none">
+                   <h:outputText value="#{donetask.endDate}">
+                            <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                   </h:outputText>
+                </p:column>
+                <p:column headerText="Titel" filterBy="#{donetask.title}" filterStyle="display:none">
+                    <h:outputText value="#{donetask.title}"/>
+                </p:column>
+		<p:column headerText="Wichtig">
+                    <h:selectBooleanCheckbox value="#{donetask.urgent}" disabled="true"/>
+                </p:column>
+		
+                <p:column style="width:150px;text-align: center">
+                    <p:commandButton update=":taskForm:closedTaskDialog" oncomplete="PF('closedTaskDialog').show()" icon="ui-icon-document-b" title="Ansicht">
+                        <f:setPropertyActionListener value="#{donetask}" target="#{taskBean.task}" />
+                    </p:commandButton>
+		            <p:commandButton update=":taskForm:doneTaskTable,:taskForm:undoneTaskTable" icon="ui-icon-note" title="Öffnen" action="#{taskBean.openTask}">
+                        <f:setPropertyActionListener value="#{donetask}" target="#{taskBean.task}" />
+                    </p:commandButton>
+		            <p:commandButton action="#{taskBean.doDeleteTask}" icon="ui-icon-trash" title="Loeschen" update=":taskForm:doneTaskTable">
+                        <f:setPropertyActionListener value="#{donetask}" target="#{taskBean.task}" />
+            		<p:confirm header="Bestaetigung" message="Wollen sie die Aufgabe wirklich löschen?" icon="ui-icon-alert" />
+                    </p:commandButton>
+               </p:column>
+            </p:dataTable>
+			
+			
+			
+	
+	    <p:dialog header="Neue Aufgabe erstellen..." id="newTaskDialog" widgetVar="newTaskDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+	    	<h:panelGrid columns="3" cellpadding="5" id="panel">
+		    <h:outputText value="Person:" />
+		    <p:selectOneMenu id="person" value="#{taskBean.person}"
+                        filter="true" filterMatchMode="startsWith" panelStyle="width:550px" >
+						<f:selectItem Label="Bitte auswaehlen" />
+  						<f:selectItems value="#{personListController.activeParents}" />    						
+		    </p:selectOneMenu> 
+            <h:outputText rendered="#{taskBean.getStatus() == 1}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{taskBean.getStatus() != 1}"/>
+				
+	        <p:outputLabel for="startDate" value="Start:" />
+	        <p:calendar id="startDate" value="#{taskBean.startDate}" pattern="dd. MMMM yyyy" locale="de"/>
+            <h:outputText rendered="#{taskBean.getStatus() == 1 or taskBean.getStatus() == 2}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{taskBean.getStatus() != 1 and taskBean.getStatus() != 2}"/>
+ 			   
+	        <p:outputLabel for="endDate" value="Ende:" />
+       		<p:calendar id="endDate" value="#{taskBean.endDate}" pattern="dd. MMMM yyyy" locale="de" />
+            <h:outputText rendered="#{taskBean.getStatus() == 1 or taskBean.getStatus() == 2}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{taskBean.getStatus() != 1 and taskBean.getStatus() != 2}"/>
+
+		    <h:outputText value="Wichtig: " />
+		    <p:selectBooleanCheckbox value="#{taskBean.urgent}"/>	
+            <h:outputText/>
+					
+
+	        <p:outputLabel for="title" value="Titel" />
+	        <p:inputMask id="title" value="#{taskBean.title}" />
+            <h:outputText rendered="#{taskBean.getStatus() == 1}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{taskBean.getStatus() != 1}"/>
+			
+		    <p:outputLabel for="description" value="Beschreibung:" />
+	        <p:inputTextarea rows="10" cols="40" id="description" value="#{taskBean.description}" />
+            <h:outputText/>
+			
+		
+	        </h:panelGrid>
+		 	<p:separator />
+		 	<h:panelGrid columns="2" cellpadding="5">  
+		   	<p:commandButton value="Speichern" actionListener="#{taskBean.newTask}" onclick="PF('confirmationDialog').show()" update="status0, status1, status2, status">
+	           </p:commandButton>	
+		   	<p:commandButton value="Fenster Schließen" onclick="PF('newTaskDialog').hide()" update=":taskForm:doneTaskTable,:taskForm:undoneTaskTable">
+               </p:commandButton>
+		 	</h:panelGrid>
+	    </p:dialog>
+	
+
+
+
+
+	     <p:dialog header="Bearbeiten" id="taskEditDialog" widgetVar="taskEditDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+                <p:outputPanel id="taskedit" rendered="#{not empty taskBean.task}">
+                <h:panelGrid columns="3" >
+                     <h:outputText value="Person:" />
+                     <h:outputText value="#{taskBean.task.person.firstName} #{taskBean.task.person.lastName}" />
+		             <h:outputText/>
+                     <h:outputText value="Person ändern:" />
+                     <p:selectOneMenu id="person1" filter="true" filterMatchMode="startsWith" panelStyle="width:550px" value="#{taskBean.person}" >
+                         <f:selectItem Label="Bitte auswaehlen" />
+                         <f:selectItems value="#{personListController.allParents}" />    						
+                     </p:selectOneMenu> 
+		             <h:outputText rendered="#{taskBean.getStatus() == 1}"
+		                            value="*"
+		                            style="color:red"/>
+		             <h:outputText rendered="#{taskBean.getStatus() != 1}"/>
+                     <p:outputLabel for="startDate1" value="Start: " />
+                     <p:calendar id="startDate1" value="#{taskBean.task.startDate}" pattern="dd. MMMM yyyy" locale="de"/>
+		             <h:outputText rendered="#{taskBean.getStatus() == 1 or taskBean.getStatus() == 2}"
+		                           value="*"
+		                           style="color:red"/>
+		             <h:outputText rendered="#{taskBean.getStatus() != 1 and taskBean.getStatus() != 2}"/>          
+                     <p:outputLabel for="endDate1" value="Ende: " />
+                     <p:calendar id="endDate1" value="#{taskBean.task.endDate}" pattern="dd. MMMM yyyy" locale="de"/>
+		             <h:outputText rendered="#{taskBean.getStatus() == 1 or taskBean.getStatus() == 2}"
+		                           value="*"
+		                           style="color:red"/>
+		             <h:outputText rendered="#{taskBean.getStatus() != 1 and taskBean.getStatus() != 2}"/>
+                     <h:outputText value="Wichtig: " />
+                     <p:selectBooleanCheckbox value="#{taskBean.task.urgent}"/>	
+		             <h:outputText/>		
+                     <p:outputLabel for="title1" value="Titel" />
+					 <p:inputMask id="title1" value="#{taskBean.task.title}" />
+		             <h:outputText rendered="#{taskBean.getStatus() == 1}"
+		                           value="*"
+		                           style="color:red"/>
+		             <h:outputText rendered="#{taskBean.getStatus() != 1}"/>
+			
+                     <p:outputLabel for="description1" value="Beschreibung:" />
+					 <p:inputTextarea rows="10" cols="40" id="description1" value="#{taskBean.task.description}" />
+		             <h:outputText />
+                     </h:panelGrid>
+                     <p:separator/>
+                     <h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{taskBean.editTask()}" onclick="PF('confirmationDialog').show()" update="status, status0, status1, status2"/>
+                        <p:commandButton value="Fenster Schließen" onclick="PF('taskEditDialog').hide()" update=":taskForm:doneTaskTable,:taskForm:undoneTaskTable"/>
+                    </h:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+
+
+
+
+            <p:dialog header="Nachricht" id="confirmationDialog" widgetVar="confirmationDialog" modal="true" width="650" height="90" showEffect="clip" hideEffect="clip" resizable="false" >
+            <p:outputPanel id="status">
+		       <h:outputText id="status0" rendered="#{taskBean.getStatus() == 1}"
+                         value="Speichern nicht möglich! Die Pflichtfelder wurden nicht vollständig ausgefüllt!"
+                         style="color:red"/>
+               <h:outputText id="status1" rendered="#{taskBean.getStatus() == 2}"
+                         value="Startdatum liegt nach dem Enddatum!"
+                         style="color:red"/>
+               <h:outputText id="status2" rendered="#{taskBean.getStatus() == 0}"
+                         value="Aufgabe gespeichert!"/>
+            </p:outputPanel>
+              <p:separator />
+	          <p:commandButton value="Fenster Schließen" update="panel, taskedit" onclick="PF('confirmationDialog').hide()"/>
+            </p:dialog>		
+
+
+
+
+	    <p:dialog header="Ansicht" id="closedTaskDialog" widgetVar="closedTaskDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+                <p:outputPanel id="closedTask" rendered="#{not empty taskBean.task}">
+                  <p:panelGrid columns="2">
+    		    <h:outputText value="Person:" />
+                    <h:outputText value="#{taskBean.task.person.firstName} #{taskBean.task.person.lastName}" />
+ 
+    		    <h:outputText value="Start:" />
+                    <h:outputText value="#{taskBean.task.startDate}" >
+                                 <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                   </h:outputText>
+ 
+    		    <h:outputText value="Ende:" />
+                    <h:outputText value="#{taskBean.task.endDate}" >
+                                 <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                   </h:outputText>
+		
+		    <h:outputText value="Wichtig:" />
+   		    <p:selectBooleanCheckbox value="#{taskBean.task.urgent}" disabled="true"/>
+ 		    
+ 		    <h:outputText value="Titel:" />
+   		    <h:outputText value="#{taskBean.task.title}" />
+ 		    
+		    <h:outputText value="Beschreibung:" />
+   		    <h:outputText value="#{taskBean.task.description}" />
+                  
+		  </p:panelGrid>
+		  <p:separator />
+		  <p:panelGrid columns="1" style="width:100px;text-align: center">
+			 <p:commandButton value="Schließen" onclick="PF('closedTaskDialog').hide()"/>
+		  </p:panelGrid>
+               </p:outputPanel>			   
+            </p:dialog>
+			
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+	                <p:commandButton value="Ja" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+	                <p:commandButton value="Nein" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+            </p:confirmDialog>
+			
+        </h:form>
+   <!-- German language support -->
+    <script type="text/javascript">
+         PrimeFaces.locales ['de'] = {
+                 closeText: 'Schließen',
+                 prevText: 'Zurück',
+                 nextText: 'Weiter',
+                 monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                 monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                 dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                 dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                 dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                 weekHeader: 'Woche',
+                 firstDay: 1,
+                 isRTL: false,
+                 showMonthAfterYear: false,
+                 yearSuffix:'',
+                 timeOnlyTitle: 'Zeit',
+                 timeText: 'Zeit',
+                 hourText: 'Stunde',
+                 minuteText: 'Minute',
+                 secondText: 'Sekunde',
+                 currentText: 'Aktuelles Datum',
+                 ampm: false,
+                 month: 'Monat',
+                 week: 'Woche',
+                 day: 'Tag',
+                 allDayText: 'Ganzer Tag'
+        };
+    </script>
+    </ui:define>
+</ui:composition>

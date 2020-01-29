@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>tc_myGuardians</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">tc_myGuardians</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/secured/parentGuardians.xhtml</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='j_idt7:j_idt8']/ul/li[3]/ul/li[3]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:guardianTable:j_idt31</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=guardianForm:newGuardianDialog_title</td>
+	<td>Neue Bezugsperson anlegen</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=guardianForm:firstName</td>
+	<td>New</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=guardianForm:lastName</td>
+	<td>Guardian</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:j_idt66</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//div[@id='guardianForm:confirmationDialog']/div</td>
+	<td>Nachricht</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:j_idt44</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=guardianForm:email</td>
+	<td>newGuardian@ikita.at</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='guardianForm:kids']/span/label</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='guardianForm:kids_panel']/div[2]/ul/li/div/div[2]/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:j_idt66</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>id=guardianForm:confirmationDialog_title</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:j_idt44</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=guardianForm:j_idt67</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotBodyText</td>
+	<td>css=td</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Abmelden</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=username</td>
+	<td>teacher1@ikita.at</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>passwd</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//button[@type='submit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=span.ui-panel-title</td>
+	<td>Es gibt unbestätigte Bezugspersonen!</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Klicke hier, um sie zu bestätigen!</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='personForm:unconguardianTable_data']/tr/td</td>
+	<td>New</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='personForm:unconguardianTable_data']/tr/td[2]</td>
+	<td>Guardian</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=personForm:unconguardianTable:0:j_idt85</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='j_idt7:j_idt8']/ul/li[7]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>passwd</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=username</td>
+	<td>user02@ikita.at</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//button[@type='submit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//div[@id='j_idt7:j_idt8']/ul/li[3]/ul/li[3]/a/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=td</td>
+	<td>Guardian</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='guardianForm:guardianTable_data']/tr/td[2]</td>
+	<td>New</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tbody[@id='guardianForm:guardianTable_data']/tr/td[3]</td>
+	<td>newGuardian@ikita.at</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=span.ui-menuitem-text</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=span.ui-panel-title</td>
+	<td>Neuigkeiten</td>
+</tr>
+</tbody></table>
+</body>
+</html>

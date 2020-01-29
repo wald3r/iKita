@@ -1,0 +1,21 @@
+.scheduler-panel-grid {
+	margin: 0 auto;
+}
+
+.teacher-event {
+	background-color:#4e9a06;
+	border:1px solid #4e9a06;
+	font-weight:650;
+}
+
+.closed-event {
+    background-color:#555753;
+    border:1px solid #555753;
+    font-weight:650;
+}
+
+.attendance-event {
+    background-color:#a40000;
+    border:1px solid #a40000;
+    font-weight:650;
+}

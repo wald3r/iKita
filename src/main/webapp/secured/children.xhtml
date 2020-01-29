@@ -1,0 +1,844 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+		xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/templates/main.xhtml">
+		
+    <ui:define name ="content">
+        <h:form id="childForm">
+
+		<p:dataTable id="childTableParent" var="child" value="#{parentChildrenListController.myChildren}" rendered="#{sessionInfoBean.hasRole('PARENT')}" 
+                  emptyMessage="Keine Kinder vorhanden!"
+                  style="text-align: center" rows="15">
+                <f:facet name="header">
+                Angemeldete Kinder:
+                </f:facet>
+                <p:column headerText="Vorname">
+                   	<h:outputText value="#{child.firstName}"/>
+                </p:column>
+                <p:column headerText="Nachname">
+                   	<h:outputText value="#{child.lastName}"/>
+                </p:column>
+                <p:column headerText="Geburtstag">
+                   	<h:outputText value="#{child.birthday}">
+                   		 <f:convertDateTime type="date" 
+                         	pattern="dd. MMMM yyyy"
+                            locale="de"
+                            timeZone="Europe/Vienna" />
+                   	</h:outputText>
+                </p:column>
+                <p:column headerText="Anmeldung">
+                   	<h:outputText value="#{child.registrationDate}">
+                   		 <f:convertDateTime type="date" 
+                         	pattern="dd. MMMM yyyy"
+                            locale="de"
+                            timeZone="Europe/Vienna" />
+                   	</h:outputText>
+                </p:column>
+                <p:column headerText="Abmeldung">
+                   	<h:outputText value="#{child.deRegistrationDate}">
+                   		<f:convertDateTime type="date" 
+                         	pattern="dd. MMMM yyyy"
+                            locale="de"
+                            timeZone="Europe/Vienna" />
+                   	</h:outputText>
+                </p:column>
+                <p:column headerText="Bringzeit">
+                   	<h:outputText value="#{child.defaultBringTime}">
+                   		<f:convertDateTime type="date" pattern="HH:mm" locale="de" timeZome="Europe/Vienna"/>
+                   	</h:outputText>
+                </p:column>
+                <p:column headerText="Abholzeit">
+                   	<h:outputText value="#{child.defaultPickupTime}">
+                   		<f:convertDateTime type="date" pattern="HH:mm" locale="de" timeZome="Europe/Vienna"/>
+                   	</h:outputText>
+                </p:column>
+                <p:column headerText="Notfallkontakt">
+                   	<h:outputText value="#{child.emergencyContact.firstName} #{child.emergencyContact.lastName}"/>
+                </p:column>
+                <p:column headerText="Allergien">
+                   	<h:outputText value="#{child.allergies}"/>
+                </p:column>
+
+                <p:column style="width:100px;text-align: center">
+                       <p:commandButton update=":childForm:childDetailDialog" oncomplete="PF('childDetailDialog').show()" icon="ui-icon-note" title="Stammblatt">
+                               <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+               		</p:commandButton>
+                	<p:commandButton update=":childForm:childEditDialogParent, :childForm:genderEditDialog" rendered="#{personListController.isParentActive()}" 
+                                         oncomplete="PF('childEditDialogParent').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                                <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+                	</p:commandButton>
+                </p:column>
+	    	</p:dataTable>
+			
+            <p:dataTable id="activechildTable" var="child" value="#{teacherChildrenListController.activeChildren}"
+                         filteredValue="#{teacherChildrenListController.filteredChild1}"
+                         widgetVar="filteredChild1"
+                         rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}" 
+                         emptyMessage="Keine Kinder vorhanden!"
+                         style="text-align: center" 
+                         rows="15"
+                         paginatorPosition="bottom"
+                         paginator="true"
+                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15,20,25">
+		<f:facet name="header">
+			 <p:commandButton icon="ui-icon-circle-plus"  title="Neues Kind anlegen" action="#{childBean.clearSettings}" 
+			 			update=":childForm:newChildDialog" 						
+						oncomplete="PF('newChildDialog').show ()"> 
+	    		</p:commandButton>
+			Aktive Kinder:
+                         <p:outputPanel style="float:right">
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredChild1').filter()" style="width:150px" />
+                        </p:outputPanel>
+		</f:facet> 
+                <p:column headerText="Vorname" filterBy="#{child.firstName}" filterStyle="display:none" >
+                    <h:outputText value="#{child.firstName}"/>
+                </p:column>
+                 <p:column headerText="Nachname" filterBy="#{child.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{child.lastName}"/>
+                </p:column>
+                <p:column headerText="Geburtstag" filterBy="#{child.birthday}" filterStyle="display:none">
+                    <h:outputText value="#{child.birthday}" >
+                             <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Anmeldung" filterBy="#{child.registrationDate}" filterStyle="display:none">
+                    <h:outputText value="#{child.registrationDate}">
+                             <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Abmeldung" filterBy="#{child.deRegistrationDate}" filterStyle="display:none">
+                    <h:outputText value="#{child.deRegistrationDate}">
+                             <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Bringzeit" filterBy="#{child.defaultBringTime}" filterStyle="display:none">
+                    <h:outputText value="#{child.defaultBringTime}" >
+                           <f:convertDateTime type="date" 
+                                     pattern="HH:mm"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="Abholzeit" filterBy="#{child.defaultPickupTime}" filterStyle="display:none">
+                    <h:outputText value="#{child.defaultPickupTime}" >
+                           <f:convertDateTime type="date" 
+                                     pattern="HH:mm"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		        <p:column headerText="im Notfall" filterBy="#{child.emergencyContact.firstName} #{child.emergencyContact.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{child.emergencyContact.firstName} #{child.emergencyContact.lastName}" />
+                </p:column>
+		        <p:column style="width:150px;text-align: center">
+                    <p:commandButton update=":childForm:childDetailDialog" oncomplete="PF('childDetailDialog').show()" icon="ui-icon-note" title="Stammblatt">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+                    </p:commandButton>
+                    <p:commandButton update=":childForm:childEditDialog, :childForm:genderEditDialog" oncomplete="PF('childEditDialog').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+                    </p:commandButton>
+		            <p:commandButton action="#{childBean.doDeleteChild}" icon="ui-icon-trash" title="Löschen" update=":childForm:activechildTable, :childForm:inactivechildTable">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+            		<p:confirm header="Bestätigung" message="Wollen sie das Kind wirklich löschen?" icon="ui-icon-alert" />
+                    </p:commandButton>
+ 		            </p:column>
+            </p:dataTable>
+
+ 	   <p:dataTable id="inactivechildTable" var="child" value="#{teacherChildrenListController.inactiveChildren}" 
+                    filteredValue="#{teacherChildrenListController.filteredChild2}"
+                    widgetVar="filteredChild2"
+                    rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}" 
+                    emptyMessage="Keine Kinder vorhanden!"
+                    style="text-align: center"
+                    rows="10"
+	            paginator="true"
+                    paginatorPosition="bottom"
+	            paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+	            rowsPerPageTemplate="5,10,15,20,25">
+		<f:facet name="header">
+			Inaktive Kinder:
+                         <p:spacer width="8"></p:spacer>  
+                        <p:outputPanel style="float:right; margin-top: -30px" >
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredChild2').filter()" style="width:150px" />
+                        </p:outputPanel>
+		</f:facet> 
+                <p:column headerText="Vorname" filterBy="#{child.firstName}" filterStyle="display:none">
+                    <h:outputText value="#{child.firstName}"/>
+                </p:column>
+                 <p:column headerText="Nachname" filterBy="#{child.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{child.lastName}"/>
+                </p:column>
+                <p:column headerText="Geburtstag" filterBy="#{child.birthday}" filterStyle="display:none">
+                    <h:outputText value="#{child.birthday}">
+                           <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="Anmeldung" filterBy="#{child.registrationDate}" filterStyle="display:none">
+                    <h:outputText value="#{child.registrationDate}">
+                           <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="Abmeldung" filterBy="#{child.deRegistrationDate}" filterStyle="display:none">
+                    <h:outputText value="#{child.deRegistrationDate}">
+                           <f:convertDateTime type="date" 
+                                     pattern="dd. MMMM yyyy"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="Bringzeit" filterBy="#{child.defaultBringTime}" filterStyle="display:none">
+                    <h:outputText value="#{child.defaultBringTime}" >
+                           <f:convertDateTime type="date" 
+                                     pattern="HH:mm"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="Abholzeit" filterBy="#{child.defaultPickupTime}" filterStyle="display:none">
+                    <h:outputText value="#{child.defaultPickupTime}" >
+                           <f:convertDateTime type="date" 
+                                     pattern="HH:mm"
+                                     locale="de"
+                                     timeZone="Europe/Vienna" />
+                    </h:outputText>
+                </p:column>
+		<p:column headerText="im Notfall" filterBy="#{child.emergencyContact.firstName} #{child.emergencyContact.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{child.emergencyContact.firstName} #{child.emergencyContact.lastName}" />
+                </p:column>
+		
+  		
+		<p:column style="width:150px; text-align: center">
+                    <p:commandButton update=":childForm:childDetailDialog" oncomplete="PF('childDetailDialog').show()" icon="ui-icon-note" title="Stammblatt">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+                    </p:commandButton>
+                
+                    <p:commandButton update=":childForm:childEditDialog, :childForm:genderEditDialog" oncomplete="PF('childEditDialog').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+                    </p:commandButton>
+                
+		<p:commandButton action="#{childBean.doDeleteChild}" icon="ui-icon-trash" title="Löschen" update=":childForm:activechildTable, :childForm:inactivechildTable">
+                        <f:setPropertyActionListener value="#{child}" target="#{childBean.child}" />
+            		<p:confirm header="Bestätigung" message="Wollen sie das Kind wirklich löschen?" icon="ui-icon-alert" />
+                    </p:commandButton>
+ 		</p:column>
+            </p:dataTable>
+ 	    
+             
+	    <p:dialog header="Neues Kind anlegen" id="newChildDialog" widgetVar="newChildDialog" modal="true" showEffect="clip" hideEffect="clip" width="1200" height="650">
+                <p:wizard flowListener="#{childBean.onFlowProcess}" nextLabel="nächste Seite" backLabel="vorherige Seite">
+        	<p:tab id="personal" title="Persönliches">
+		  <p:panel>
+                  <p:messages />
+ 		  <h:panelGrid columns="3" cellpadding="5" id="panel">
+		    <p:outputLabel for="firstName1" value="Vorname: *" />
+		    <p:inputText id="firstName1" value="#{childBean.firstName}"/>
+            <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 4}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 4}"/>
+				
+            <p:outputLabel for="lastName1" value="Nachname: *" />
+	        <p:inputText id="lastName1" value="#{childBean.lastName}" />
+            <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 4}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 4}"/>
+ 			   
+	        <p:outputLabel for="birthday1" value="Geburtstag: *" />
+       		<p:calendar id="birthday1" value="#{childBean.birthday}" pattern="dd. MMMM yyyy" locale="de" mask="true" />
+            <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 4}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 4}"/>
+
+		    <h:outputLabel for="parents1" value="Eltern: *"/>    								      
+		        <p:selectCheckboxMenu id="parents1" value="#{childBean.selectedParents}" label="Bitte auswaehlen" filter="true" filterMatchMode="startsWith" 				panelStyle="width:550px" >
+  			   <f:selectItems value="#{personListController.allParents}" />    						
+		       </p:selectCheckboxMenu>
+               <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 3 }"
+                             value="*"
+                             style="color:red"/>
+               <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 3}"/> 
+	    	   </h:panelGrid>
+		   <h:panelGrid columns="2" cellpadding="5" id="panel1">
+			<h:outputText value="Geschlecht:" />
+        			<p:selectOneButton value="#{childBean.sex}">
+           			<f:selectItem itemLabel="Männlich" itemValue="male" />
+         			<f:selectItem itemLabel="Weiblich" itemValue="female" />
+            			<f:selectItem itemLabel="Anders" itemValue="other" />
+        			</p:selectOneButton>
+		    </h:panelGrid>
+            	    </p:panel>
+        	</p:tab>
+		<p:tab id="picture" title="Foto">
+            	   <p:panel>
+		   <p:messages />
+		    <h:form>
+       		    <p:fileUpload fileUploadListener="#{childBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+						sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+						invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+             </h:form>
+  		</p:panel>
+        	</p:tab>
+		<p:tab id="times" title="Zeiten">
+            	   <p:panel>
+		   <p:messages />
+		   <h:panelGrid columns="3" cellpadding="5" id="panel2">
+	           	<p:outputLabel for="registrationDate1" value="Anmeldedatum: *" />
+	            <p:calendar id="registrationDate1" value="#{childBean.registrationDate}" pattern="dd. MMMM yyyy" locale="de" mask="true" />
+                <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+                <p:outputLabel for="deregistrationDate1" value="Abmeldedatum: *" />
+	           	<p:calendar id="deregistrationDate1" value="#{childBean.deRegistrationDate}" pattern="dd. MMMM yyyy" locale="de" mask="true"/>
+                <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+		    </h:panelGrid>
+		    <p:separator />
+		    <h:panelGrid columns="2" cellpadding="5" id="panel3">
+			Anwesenheit: 
+	           	<p:selectManyCheckbox id="day1" value="#{childBean.defaultPresences1}">
+		 		<f:selectItem itemLabel="Montag" itemValue="mon" />
+         	   		<f:selectItem itemLabel="Dienstag" itemValue="tue" />
+            			<f:selectItem itemLabel="Mittwoch" itemValue="wed" />
+				<f:selectItem itemLabel="Donnerstag" itemValue="thurs" />
+         	   		<f:selectItem itemLabel="Freitag" itemValue="fri" />
+            			<f:selectItem itemLabel="Samstag" itemValue="sat" />
+				<f:selectItem itemLabel="Sonntag" itemValue="sun" />
+  		        </p:selectManyCheckbox>
+		     </h:panelGrid>	
+		     <p:separator />
+		    <h:panelGrid columns="2" cellpadding="5" id="panel4">
+			<p:outputLabel for="bringtime1" value="Standart Bringzeit: " />
+		   	<p:calendar id="bringtime1" value="#{childBean.defaultBringTime}" pattern="HH:mm" locale="de" timeOnly="true"  />
+			<p:outputLabel for="pickuptime1" value="Standart Abholzeit: " />
+		   	<p:calendar id="pickuptime1" value="#{childBean.defaultPickupTime}" pattern="HH:mm" locale="de" timeOnly="true" />
+
+		     </h:panelGrid>			
+		</p:panel>
+        	</p:tab>	
+		<p:tab id="otherstuff" title="Sonstiges">
+           <p:panel>
+		 	 <h:panelGrid columns="2" cellpadding="5" id="panel8">
+	         <p:outputLabel for="allergies1" value="Allergien:" />
+             <p:inputTextarea rows="6" cols="33" id="allergies1" value="#{childBean.allergies}" />
+			<h:outputLabel for="emergencyContact1" value="Notfallkontakt:"/>    								      
+		        <p:selectOneMenu id="emergencyContact1" value="#{childBean.emergencyContact1}" filter="true" filterMatchMode="contains" panelStyle="width:550px" >
+			<f:selectItem itemLabel="Bitte Auswählen" itemValue="" />
+  			<f:selectItems value="#{personListController.allPersons}" />    						
+               		</p:selectOneMenu> 
+			<h:outputLabel for="guardian1" value="Bezugspersonen:"/>    								      
+		        <p:selectCheckboxMenu id="guardian1" value="#{childBean.guardian1}" filter="true" filterMatchMode="contains" label="Bitte auswählen" panelStyle="width:550px" >
+  			<f:selectItems value="#{personListController.allConfirmedGuardians}" />    						
+		       </p:selectCheckboxMenu> 
+		     <p:outputLabel for="comment1" value="Kommentar:" />
+	             <p:inputTextarea rows="6" cols="33" id="comment1" value="#{childBean.comment}" />
+	    	   </h:panelGrid>
+		   <p:separator />
+		   <h:panelGrid columns="2" cellpadding="5" id="panel7">  
+		   <p:commandButton value="Speichern" actionListener="#{childBean.newChild}" onclick="PF('confirmationDialog').show()" update="status">
+	           </p:commandButton>	
+		   <p:commandButton value="Fenster Schließen" onclick="PF('newChildDialog').hide()" update=":childForm:activechildTable, :childForm:inactivechildTable">
+                   </p:commandButton>
+		   </h:panelGrid>
+		    <p:separator />
+		</p:panel>
+        	</p:tab>	
+	      </p:wizard>
+            </p:dialog>
+
+                
+
+	                
+
+ 	    <p:dialog header="Stammblatt" id="childDetailDialog" widgetVar="childDetailDialog" width="950" height="700" modal="clip" showEffect="clip" hideEffect="clip"  
+                     resizable="false" style="text-align: center">
+	 	             <p:dataTable id="picturetable" var="child" value="#{childBean.child}" style="text-align: center">
+	 			<f:facet name="header">
+	 				Bild
+	 			</f:facet> 
+	                 	<p:column>
+	                     		<p:graphicImage value="#{child.picture.getURI()}"/>
+	                 	</p:column>
+	             	</p:dataTable>
+	             <p:dataTable id="contactTable" var="child" value="#{childBean.child}" style="text-align: center">
+			<f:facet name="header">
+				Kind
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{child.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{child.lastName}"/>
+               		 </p:column>
+               		 <p:column headerText="Geburtstag">
+                 		  <h:outputText value="#{child.birthday}">
+                                     <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+               		 </p:column>
+			  <p:column headerText="Geschlecht">
+                 		  <h:outputText value="#{child.genderString}"/>
+               		 </p:column>
+			 <p:column headerText="Allergien">
+                   		 <h:outputText value="#{child.allergies}" />
+               		 </p:column>
+			<p:column headerText="Sonstiges">
+                   		 <h:outputText value="#{child.comment}" />
+               		 </p:column>
+            	</p:dataTable>
+		<p:dataTable id="contactTable1" var="time" value="#{childBean.child}" style="text-align: center">
+			<f:facet name="header">
+				Zeiten
+			</f:facet> 
+                	<p:column headerText="Anmeldung">
+                   		 <h:outputText value="#{time.registrationDate}" >
+                                     <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+               		 </p:column>
+			<p:column headerText="Abmeldung">
+                   		 <h:outputText value="#{time.deRegistrationDate}" >
+                                      <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+               		 </p:column>
+			<p:column headerText="Bringzeit">
+                  	  	<h:outputText value="#{time.defaultBringTime}" >
+                                     <f:convertDateTime type="date" 
+                                         pattern="HH:mm"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+               		 </p:column>
+			<p:column headerText="Abholzeit">
+                   		 <h:outputText value="#{time.defaultPickupTime}" >
+                                      <f:convertDateTime type="date" 
+                                         pattern="HH:mm"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+                	</p:column>
+            	</p:dataTable>
+	  	<p:separator />
+		<p:dataTable id="contactTable2" var="siblings" value="#{childBean.child.siblings}" rendered="#{not empty childBean.child.siblings}" style="text-align: center">
+			<f:facet name="header">
+				Geschwister
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{siblings.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{siblings.lastName}"/>
+               		 </p:column>
+               		 <p:column headerText="Geburtstag">
+                 		  <h:outputText value="#{siblings.birthday}">
+                                      <f:convertDateTime type="date" 
+                                         pattern="dd. MMMM yyyy"
+                                         locale="de"
+                                         timeZone="Europe/Vienna" />
+                                  </h:outputText>
+               		 </p:column>
+			  <p:column headerText="Geschlecht">
+                 		  <h:outputText value="#{siblings.genderString}"/>
+               		 </p:column>
+            	</p:dataTable>
+		<p:dataTable id="contactTable3" var="parent" value="#{childBean.child.parents}" style="text-align: center" rendered="#{not empty childBean.child.parents}">
+			<f:facet name="header">
+				Eltern
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{parent.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{parent.lastName}"/>
+               		 </p:column>
+			 <p:column headerText="priv. Telefonnummer">
+                   		 <h:outputText value="#{parent.privateTelephone}" />
+               		 </p:column>
+			<p:column headerText="geschaeftl. Telefonnummer">
+                   		 <h:outputText value="#{parent.workTelephone}" />
+               		 </p:column>
+			<p:column headerText="E-Mail">
+                  	  	<h:outputText value="#{parent.email}" />
+               		 </p:column>
+            	</p:dataTable>
+		<p:dataTable id="contactTable4" var="guardians" value="#{childBean.child.guardians}" style="text-align: center" rendered="#{not empty childBean.child.guardians}">
+			<f:facet name="header">
+				Bezugspersonen
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{guardians.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{guardians.lastName}"/>
+               		 </p:column>
+			 <p:column headerText="priv. Telefonnummer">
+                   		 <h:outputText value="#{guardians.privateTelephone}" />
+               		 </p:column>
+			<p:column headerText="geschaeftl. Telefonnummer">
+                   		 <h:outputText value="#{guardians.workTelephone}" />
+               		 </p:column>
+			<p:column headerText="E-Mail">
+                  	  	<h:outputText value="#{guardians.email}" />
+               		 </p:column>
+            	</p:dataTable>
+		<p:dataTable id="contactTable5" var="emergency" value="#{childBean.child.emergencyContact}" style="text-align: center" rendered="#{not empty childBean.child.emergencyContact}">
+			<f:facet name="header">
+				Notfallkontakt
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{emergency.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{emergency.lastName}"/>
+               		 </p:column>
+			 <p:column headerText="priv. Telefonnummer">
+                   		 <h:outputText value="#{emergency.privateTelephone}" />
+               		 </p:column>
+			<p:column headerText="geschaeftl. Telefonnummer">
+                   		 <h:outputText value="#{emergency.workTelephone}" />
+               		 </p:column>
+			<p:column headerText="E-Mail">
+                  	  	<h:outputText value="#{emergency.email}" />
+               		 </p:column>
+            	</p:dataTable>
+	  	  <p:separator />
+	  	   <p:panelGrid columns="3" style="width:100px;text-align: center">
+	  	      <p:commandButton value="Schließen" onclick="PF('childDetailDialog').hide()"/>
+
+		      <p:commandLink id="pdf" ajax="false">   
+			 <p:commandButton value="PDF" title="...als PDF exportieren!"/>  
+
+         		<pe:exporter type="pdf" target="contactTable,contactTable1,contactTable2,contactTable3,contactTable4,contactTable5" fileName="Stammblatt" datasetPadding="1"/>  
+     			</p:commandLink>
+	  	   </p:panelGrid>
+         </p:dialog>
+
+
+
+	    <p:dialog header="Geschlecht ändern" id="genderEditDialog" widgetVar="genderEditDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false" >
+            <p:outputPanel id="editGender" rendered="#{not empty childBean.child}">
+   		         <p:selectOneButton value="#{childBean.sex}">
+	    	     <f:selectItem itemLabel="Männlich" itemValue="male" />          		  
+	     	     <f:selectItem itemLabel="Weiblich" itemValue="female" />             		   
+	     	     <f:selectItem itemLabel="Anders" itemValue="other" /> 
+   		         </p:selectOneButton>
+				 <p:commandButton value="Fenster Schließen" onclick="PF('genderEditDialog').hide()"/>
+             </p:outputPanel>
+        </p:dialog>
+
+		
+		    <p:dialog header="Nachricht" id="confirmationDialog" widgetVar="confirmationDialog" width="700" height="90" modal="true" showEffect="clip" 
+	                  hideEffect="clip" resizable="false" >
+	             <p:outputPanel id="status">
+	             <h:outputText id="status0" rendered="#{childBean.getStatus() == 1}"
+	                  value="Speichern nicht möglich! Die Pflichtfelder wurden nicht vollständig ausgefüllt!"
+	                  style="color:red"/>
+ 	             <h:outputText id="status1" rendered="#{childBean.getStatus() == 2}"
+ 	                  value="Bitte überprüfen sie ihre Datumsangaben!"
+ 	                  style="color:red"/>
+	             <h:outputText id="status2" rendered="#{childBean.getStatus() == 3}"
+	                  value="Zu viele Eltern ausgewählt"
+	                  style="color:red"/>
+	              <h:outputText id="status3" rendered="#{childBean.getStatus() == 4}"
+	                  value="Kind mit diesen Daten schon vorhanden!"
+	                  style="color:red"/>
+	              <h:outputText id="status4" rendered="#{childBean.getStatus() == 0}"
+	                  value="Kind wurde abgespeichert!"/>
+			      <p:separator />
+	              </p:outputPanel>
+	             <p:commandButton value="Fenster Schließen" update="panel, panel2, editData, editDataParent" onclick="PF('confirmationDialog').hide()"/>
+            </p:dialog>  
+
+
+
+
+	    <p:dialog header="Bild ändern" id="changePictureDialog" widgetVar="changePictureDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false" >
+            <p:outputPanel id="changePicture" rendered="#{not empty childBean.child}">
+ 	       		<p:fileUpload fileUploadListener="#{childBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+ 			    sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+ 			    invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+				 <p:commandButton value="Fenster Schließen" onclick="PF('changePictureDialog').hide()"/>
+             </p:outputPanel>
+        </p:dialog>
+
+
+	    <p:dialog header="Kind bearbeiten" id="childEditDialog" widgetVar="childEditDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false" 
+		width="1200"  height="650">
+            <p:outputPanel id="editData" rendered="#{not empty childBean.child}"> 	
+	        <h:panelGrid columns="2" cellpadding="5" >
+		        <h:panelGrid columns="1" cellpadding="5" >
+			    <p:graphicImage value="#{childBean.child.picture.getURI()}"/>
+			</h:panelGrid>
+		    <h:panelGrid columns="3" cellpadding="5" >
+                <p:outputLabel for="firstName" value="Vorname: " />
+                <p:inputText id="firstName" value="#{childBean.child.firstName}" />
+                <h:outputText rendered="#{childBean.getStatus() == 1}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1}"/>
+	            <p:outputLabel for="lastName" value="Nachname:" />
+	            <p:inputText id="lastName" value="#{childBean.child.lastName}"/>
+                <h:outputText rendered="#{childBean.getStatus() == 1}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1}"/>
+	            <p:outputLabel for="birthday" value="Geburtstag:" />
+       		    <p:calendar id="birthday" value="#{childBean.child.birthday}"  pattern="dd. MMMM yyyy" locale="de" />
+                <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+				<h:outputText value="Geschlecht:" />
+	            <h:outputText value="#{childBean.child.genderString}" />
+                <h:outputText />
+			    <p:commandButton value="Geschlecht ändern" update=":childForm:genderEditDialog" oncomplete="PF('genderEditDialog').show ()" style="margin-top: 10px;"> 
+			    </p:commandButton>
+			    <p:commandButton value="Profilbild ändern" update=":childForm:changePictureDialog" oncomplete="PF('changePictureDialog').show ()" style="margin-top: 10px;"> 
+			    </p:commandButton>	  
+				</h:panelGrid>
+			</h:panelGrid>
+			
+		    <p:separator />	
+		    <h:panelGrid columns="2" >
+			<h:outputText value="Abholtage: " />
+                    	<h:outputText value="#{childBean.child.defaultPresencesString}" />
+ 		      </h:panelGrid>
+		     <h:panelGrid columns="2" cellpadding="5">
+			Tag ändern:  
+	           	<p:selectManyCheckbox id="day" value="#{childBean.defaultPresences1}">
+		 		<f:selectItem itemLabel="Montag" itemValue="mon" />
+         	   		<f:selectItem itemLabel="Dienstag" itemValue="tue" />
+            			<f:selectItem itemLabel="Mittwoch" itemValue="wed" />
+				<f:selectItem itemLabel="Donnerstag" itemValue="thurs" />
+         	   		<f:selectItem itemLabel="Freitag" itemValue="fri" />
+            			<f:selectItem itemLabel="Samstag" itemValue="sat" />
+				<f:selectItem itemLabel="Sonntag" itemValue="sun" />
+  		        </p:selectManyCheckbox>
+		     </h:panelGrid>	
+             <p:separator />
+
+		    <h:panelGrid columns="3" cellpadding="5" > 
+                    <p:outputLabel for="registrationDate" value="Anmeldedatum:" />
+	                <p:calendar id="registrationDate" value="#{childBean.child.registrationDate}"  pattern="dd. MMMM yyyy" locale="de"  />
+                    <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                                  value="*"
+                                  style="color:red"/>
+                    <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+	                <p:outputLabel for="deregistrationDate" value="Abmeldedatum:" />
+	                <p:calendar id="deregistrationDate" value="#{childBean.child.deRegistrationDate}"  pattern="dd. MMMM yyyy" locale="de" />
+                    <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                                  value="*"
+                                  style="color:red"/>
+                    <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+                    <p:outputLabel for="bringtime" value="Standart Bringzeit: " />
+                    <p:calendar id="bringtime" value="#{childBean.child.defaultBringTime}"  pattern="HH:mm" locale="de" timeOnly="true"/>
+                    <h:outputText/>
+                    <p:outputLabel for="pickuptime" value="Standart Abholzeit: " />
+                    <p:calendar id="pickuptime" value="#{childBean.child.defaultPickupTime}"  pattern="HH:mm" locale="de" timeOnly="true"/>  
+                    <h:outputText/>
+		     <p:separator />
+		     <p:separator />
+			 <p:separator />
+                        <h:outputText value="Notfallkontakt:" />
+                        <h:outputText value="#{childBean.child.emergencyContact.firstName} #{childBean.child.emergencyContact.lastName}" />
+                        <h:outputText/>
+ 		        <h:outputLabel for="emergencycontact5" value="Neuer Notfallkontakt:"/>    								      
+ 		        <p:selectOneMenu id="emergencycontact5" value="#{childBean.emergencyContact1}" 
+                         filter="true" filterMatchMode="startsWith" panelStyle="width:550px" >
+ 			<f:selectItem Label="Bitte auswaehlen"/>
+   			<f:selectItems value="#{personListController.allPersons}" />    						
+ 		        </p:selectOneMenu> 
+             <h:outputText/>
+	        <h:outputText value="Eltern" />
+            <h:outputText value="#{childBean.child.parentsStrings}" />
+            <h:outputText/>
+	        <h:outputLabel for="parents" value="Eltern ändern:"/>    								      
+	        <p:selectCheckboxMenu id="parents" value="#{childBean.selectedParents}" label="Bitte auswaehlen" 
+				filter="true" filterMatchMode="startsWith" panelStyle="width:550px" >
+				<f:selectItems value="#{personListController.allParents}" />    						
+			</p:selectCheckboxMenu> 
+           <h:outputText/>
+            <h:outputText value="Bezugspersonen:" />
+            <h:outputText value="#{childBean.child.guardiansStrings}" />
+            <h:outputText/>
+            <h:outputLabel for="guardians" value="Bezugspersonen ändern: "/>    								      
+            <p:selectCheckboxMenu id="guardians" value="#{childBean.guardian1}" label="Bitte auswählen" 
+                                  filter="true" filterMatchMode="startsWith" panelStyle="width:550px" >
+  			<f:selectItems value="#{personListController.allConfirmedGuardians}" />    						 
+            </p:selectCheckboxMenu>
+            <h:outputText/>
+           <p:outputLabel for="allergies" value="Allergien:" />
+           <p:inputTextarea rows="6" cols="33" id="allergies" value="#{childBean.child.allergies}" />
+           <h:outputText/>
+		    <p:outputLabel for="comment" value="Kommentar:" />
+	        <p:inputTextarea rows="6" cols="33" id="comment" value="#{childBean.child.comment}" />	    
+            <h:outputText/>
+	       </h:panelGrid>
+		   <p:separator />
+		   <h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{childBean.editExistingChild()}" onclick="PF('confirmationDialog').show()" update="status"/>
+                        <p:commandButton value="Neu laden" action="#{childBean.doReloadChild()}" update=":childForm:editData"/>
+                        <p:commandButton value="Fenster Schließen" onclick="PF('childEditDialog').hide()" update=":childForm:activechildTable, :childForm:inactivechildTable"/>
+                    </h:panelGrid>
+		    <p:separator />
+	     </p:outputPanel>
+         </p:dialog>
+
+         <p:dialog header="Kind bearbeiten" id="childEditDialogParent" widgetVar="childEditDialogParent" modal="true" showEffect="clip" hideEffect="clip" resizable="false" 
+		width="1200"  height="650">
+            <p:outputPanel id="editDataParent" rendered="#{not empty childBean.child}"> 	
+	        <h:panelGrid columns="2" cellpadding="5" >
+		        <h:panelGrid columns="1" cellpadding="5" >
+			    <p:graphicImage value="#{childBean.child.picture.getURI()}"/>
+			</h:panelGrid>
+		    <h:panelGrid columns="3" cellpadding="5" >
+                <p:outputLabel for="firstName2" value="Vorname: " />
+                <p:inputText id="firstName2" value="#{childBean.child.firstName}" />
+                <h:outputText rendered="#{childBean.getStatus() == 1}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1}"/>
+	            <p:outputLabel for="lastName2" value="Nachname:" />
+	            <p:inputText id="lastName2" value="#{childBean.child.lastName}"/>
+                <h:outputText rendered="#{childBean.getStatus() == 1}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1}"/>
+	            <p:outputLabel for="birthday2" value="Geburtstag:" />
+       		    <p:calendar id="birthday2" value="#{childBean.child.birthday}"  pattern="dd. MMMM yyyy" locale="de" />
+                <h:outputText rendered="#{childBean.getStatus() == 1 or childBean.getStatus() == 2}"
+                              value="*"
+                              style="color:red"/>
+                <h:outputText rendered="#{childBean.getStatus() != 1 and childBean.getStatus() != 2}"/>
+				<h:outputText value="Geschlecht:" />
+	            <h:outputText value="#{childBean.child.genderString}" />
+                <h:outputText />
+			    <p:commandButton value="Geschlecht ändern" update=":childForm:genderEditDialog" oncomplete="PF('genderEditDialog').show ()" style="margin-top: 10px;"> 
+			    </p:commandButton>
+			    <p:commandButton value="Profilbild ändern" update=":childForm:changePictureDialog" oncomplete="PF('changePictureDialog').show ()" style="margin-top: 10px;"> 
+			    </p:commandButton>	  
+				</h:panelGrid>
+			</h:panelGrid>
+			
+		    <p:separator />	
+		    <h:panelGrid columns="2" >
+			<h:outputText value="Abholtage: " />
+                    	<h:outputText value="#{childBean.child.defaultPresencesString}" />
+ 		     
+                        <p:outputLabel for="registrationDate2" value="Anmeldedatum:" />
+	                <p:calendar id="registrationDate2" value="#{childBean.child.registrationDate}"  pattern="dd. MMMM yyyy" locale="de" disabled="true" />
+                    
+	                <p:outputLabel for="deregistrationDate2" value="Abmeldedatum:" />
+                        <p:calendar id="deregistrationDate2" value="#{childBean.child.deRegistrationDate}"  pattern="dd. MMMM yyyy" locale="de" disabled="true" />
+                   
+                        <p:outputLabel for="bringtime2" value="Standart Bringzeit: " />
+                        <p:calendar id="bringtime2" value="#{childBean.child.defaultBringTime}"  pattern="HH:mm" locale="de" timeOnly="true" disabled="true"/>
+                    
+                        <p:outputLabel for="pickuptime2" value="Standart Abholzeit: " />
+                        <p:calendar id="pickuptime2" value="#{childBean.child.defaultPickupTime}"  pattern="HH:mm" locale="de" timeOnly="true" disabled="true"/>  
+                   
+		    
+		        <p:separator />
+                        <p:separator />
+                        <h:outputText value="Notfallkontakt:" />
+                        <h:outputText value="#{childBean.child.emergencyContact.firstName} #{childBean.child.emergencyContact.lastName}" />
+            
+                        <h:outputText value="Bezugspersonen:" />
+                        <h:outputText value="#{childBean.child.guardiansStrings}" />
+
+     
+                        <p:outputLabel for="allergies2" value="Allergien:" />
+                        <p:inputTextarea rows="6" cols="33" id="allergies2" value="#{childBean.child.allergies}" />
+          
+		        <p:outputLabel for="comment2" value="Kommentar:" />
+	                <p:inputTextarea rows="6" cols="33" id="comment2" value="#{childBean.child.comment}" />	    
+
+	         </h:panelGrid>
+		   <p:separator />
+		   <h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{childBean.editExistingChild()}" onclick="PF('confirmationDialog').show()" update="status"/>
+                        <p:commandButton value="Neu laden" action="#{childBean.doReloadChild()}" update=":childForm:editDataParent"/>
+                        <p:commandButton value="Fenster Schließen" onclick="PF('childEditDialogParent').hide()" update=":childForm:childTableParent"/>
+                    </h:panelGrid>
+		    <p:separator />
+	     </p:outputPanel>
+         </p:dialog>
+
+
+  	     <p:confirmDialog global="true" showEffect="clip" hideEffect="clip" width="300">
+                <p:commandButton value="Ja" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                <p:commandButton value="Nein" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+            </p:confirmDialog>
+	   
+
+        </h:form>
+         <!-- German language support -->
+    <script type="text/javascript">
+         PrimeFaces.locales ['de'] = {
+                 closeText: 'Schließen',
+                 prevText: 'Zurück',
+                 nextText: 'Weiter',
+                 monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember' ],
+                 monthNamesShort: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ],
+                 dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+                 dayNamesShort: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam'],
+                 dayNamesMin: ['S', 'M', 'D', 'M ', 'D', 'F ', 'S'],
+                 weekHeader: 'Woche',
+                 firstDay: 1,
+                 isRTL: false,
+                 showMonthAfterYear: false,
+                 yearSuffix:'',
+                 timeOnlyTitle: 'Zeit',
+                 timeText: 'Zeit',
+                 hourText: 'Stunde',
+                 minuteText: 'Minute',
+                 secondText: 'Sekunde',
+                 currentText: 'Aktuelles Datum',
+                 ampm: false,
+                 month: 'Monat',
+                 week: 'Woche',
+                 day: 'Tag',
+                 allDayText: 'Ganzer Tag'
+        };
+    </script>
+    </ui:define>
+
+
+</ui:composition>
+
+
+

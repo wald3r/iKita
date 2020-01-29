@@ -1,0 +1,22 @@
+In folders ChildCalendar, Message, Parent, Teacher are located various testsuites.
+
+Every testsuite (file begins with ts_) starts with the login-testcase (tc_loginParent or tc_loginTeacher) at login-page: http://localhost:8080/login.xhtml, and ends with the logout-testcase (tc_logout) - end-viewpoint: http://localhost:8080/login.xhtml.
+
+Every testcase (file begins with tc_), except testcases in ChildCalendar, starts at welcome-page: http://localhost:8080/secured/welcome.xhtml.
+
+
+Please make sure, you take a low speed for running the testsuite. There are no "waitFor" so for example when a button is to be clicked which is not already available, the test will fail. 
+
+----------
+
+tc_loginParent:
+
+testcase for login as Parent: e-mail: user02@ikita.at, password: passwd
+
+tc_loginTeacher:
+
+testcase for login as Teacher: e-mail: teacher1@ikita.at, password: passwd
+
+tc_logout:
+
+testcase for logout every user

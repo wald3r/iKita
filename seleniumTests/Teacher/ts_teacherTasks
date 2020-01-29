@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Teacher Tasks</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Teacher Tasks</b></td></tr>
+<tr><td><a href="../tc_loginTeacher">tc_loginTeacher</a></td></tr>
+<tr><td><a href="tc_editTask">tc_editTask</a></td></tr>
+<tr><td><a href="tc_completeTask">tc_completeTask</a></td></tr>
+<tr><td><a href="tc_openTask">tc_openTask</a></td></tr>
+<tr><td><a href="tc_deleteTask">tc_deleteTask</a></td></tr>
+<tr><td><a href="../tc_logoutTeacher">tc_logoutTeacher</a></td></tr>
+</tbody></table>
+</body>
+</html>

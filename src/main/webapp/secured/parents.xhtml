@@ -1,0 +1,432 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+		xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/templates/main.xhtml">
+    <ui:define name ="content">
+        <h:form id="personForm">
+		
+		<p:tabMenu activeIndex="#{param.i}">
+		    <p:menuitem value="Eltern" outcome="/secured/parents.xhtml" icon="ui-icon-star">
+		        <f:param name="i" value="0" />
+		    </p:menuitem>
+		    <p:menuitem value="Bezugspersonen" outcome="/secured/guardians.xhtml" icon="ui-icon-clipboard">
+		        <f:param name="i" value="1" />
+		    </p:menuitem>
+		    <p:menuitem value="Personal" outcome="/secured/teacher.xhtml" icon="ui-icon-document">
+		        <f:param name="i" value="2" />
+		    </p:menuitem>
+		    <p:menuitem value="Administratoren" outcome="/secured/admin.xhtml" icon="ui-icon-wrench" rendered="#{sessionInfoBean.hasRole('ADMIN')}">
+		        <f:param name="i" value="3" />
+		    </p:menuitem>
+		</p:tabMenu>
+        <p:dataTable id="parentTable" var="parent"  value="#{personListController.activeParents}" style="text-align: center"  
+                         filteredValue="#{personListController.filteredPersons1}"
+                         widgetVar="filteredPersons1"
+                         rows="15"
+                         emptyMessage="Keine Person vorhanden!"
+                         paginatorPosition="bottom"
+                         paginator="true"
+                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15,20,25">
+		<f:facet name="header">
+                        <p:commandButton title="Neue Person anlegen" icon="ui-icon-circle-plus" action="#{personBean.clearSettings}" 
+                                         update=":personForm:newParentDialog" oncomplete="PF('newParentDialog').show ()"> 
+                        </p:commandButton>
+                        <h:outputText value="Aktive Eltern"/>
+                        <p:outputPanel style="float:right">
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredPersons1').filter()" style="width:150px" />
+                        </p:outputPanel>
+
+		</f:facet> 
+                <p:column headerText="Vorname" filterBy="#{parent.firstName}" filterStyle="display:none" >
+                    <h:outputText value="#{parent.firstName}"/>
+                </p:column>
+                <p:column headerText="Nachname" filterBy="#{parent.lastName}" filterStyle="display:none" >
+                    <h:outputText value="#{parent.lastName}"/>
+                </p:column>
+                <p:column headerText="private Telefonnummer" filterBy="#{parent.privateTelephone}"  filterStyle="display:none">
+                    <h:outputText value="#{parent.privateTelephone}"/>
+                </p:column>
+                <p:column headerText="geschäftliche Telefonnummer" filterBy="#{parent.workTelephone}"  filterStyle="display:none">
+                    <h:outputText value="#{parent.workTelephone}"/>
+                </p:column>
+                <p:column headerText="Nachrichten" >
+                    <h:selectBooleanCheckbox value="#{parent.mailNotification}" disabled="true"/>
+                </p:column>
+		        <p:column headerText="Essen" >
+                    <h:selectBooleanCheckbox  value="#{parent.mailLunchReminder}" disabled="true" />
+                </p:column>
+                <p:column headerText="Berechtigt zur Anmeldung" rendered="#{sessionInfoBean.hasRole('ADMIN')}">
+                    <h:selectBooleanCheckbox value="#{parent.enabled}" disabled="true"/>
+                </p:column>
+	            <p:column style="width:50px;text-align: center" rendered="#{sessionInfoBean.hasRole('ADMIN')}" >
+	            <p:commandButton update=":personForm:loginDialog" oncomplete="PF('loginDialog').show()" icon="ui-icon-note" title="Login bearbeiten">
+                   <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}"/>
+                </p:commandButton>
+	            </p:column>
+		<p:column style="width:150px;text-align: center">
+                    <p:commandButton update=":personForm:contactDialog" oncomplete="PF('contactDialog').show()" icon="ui-icon-bookmark" title="Kontaktliste">
+                        <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}" />
+                    </p:commandButton>
+                    <p:commandButton update=":personForm:parentEditDialog" oncomplete="PF('parentEditDialog').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                        <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}" />
+                    </p:commandButton>
+					<p:commandButton action="#{personBean.doDeletePerson}" icon="ui-icon-trash" title="Löschen" update=":personForm:parentTable">
+                        <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}" />
+            		<p:confirm header="Bestätigung" message="Wollen sie die Person wirklich löschen?" icon="ui-icon-alert" />
+                    </p:commandButton>
+ 		</p:column>
+            </p:dataTable>
+
+                <p:dataTable id="inacparentTable" var="parent"  value="#{personListController.inactiveParents}" style="text-align: center" 
+                         filteredValue="#{personListController.filteredPersons2}"
+                         widgetVar="filteredPersons2"         
+                         rows="15"
+                         emptyMessage="Keine Person vorhanden!"
+                         paginatorPosition="bottom"
+                         paginator="true"
+                         paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         rowsPerPageTemplate="5,10,15,20,25">
+                 <f:facet name="header">
+                       
+			Inaktive Eltern
+                        <p:spacer width="8"></p:spacer>  
+                        <p:outputPanel style="float:right; margin-top: -30px" >
+                        <h:outputText value="Suchen: " />
+                        <p:inputText id="globalFilter" onkeyup="PF('filteredPersons2').filter()" style="width:150px" />
+                        </p:outputPanel>
+		</f:facet> 
+                <p:column headerText="Vorname" filterBy="#{parent.firstName}" filterStyle="display:none" >
+                    <h:outputText value="#{parent.firstName}"/>
+                </p:column>
+                <p:column headerText="Nachname" filterBy="#{parent.lastName}" filterStyle="display:none">
+                    <h:outputText value="#{parent.lastName}"/>
+                </p:column>
+                <p:column headerText="private Telefonnummer" filterBy="#{parent.privateTelephone}" filterStyle="display:none" >
+                    <h:outputText value="#{parent.privateTelephone}"/>
+                </p:column>
+                <p:column headerText="geschäftliche Telefonnummer" filterBy="#{parent.workTelephone}" filterStyle="display:none" >
+                    <h:outputText value="#{parent.workTelephone}"/>
+                </p:column>
+                <p:column headerText="Nachrichten">
+                    <h:selectBooleanCheckbox value="#{parent.mailNotification}" disabled="true"/>
+                </p:column>
+		        <p:column headerText="Essen">
+                    <h:selectBooleanCheckbox  value="#{parent.mailLunchReminder}" disabled="true" />
+                </p:column>
+                <p:column headerText="Berechtigt zur Anmeldung" rendered="#{sessionInfoBean.hasRole('ADMIN')}">
+                    <h:selectBooleanCheckbox value="#{parent.enabled}" disabled="true"/>
+                </p:column>
+	            <p:column style="width:50px;text-align: center" rendered="#{sessionInfoBean.hasRole('ADMIN')}" >
+	            <p:commandButton update=":personForm:loginDialog" oncomplete="PF('loginDialog').show()" icon="ui-icon-note" title="Login bearbeiten">
+                   <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}"/>
+                </p:commandButton>
+	            </p:column>
+		<p:column style="width:100px;text-align: center">
+                    <p:commandButton update=":personForm:parentEditDialog" oncomplete="PF('parentEditDialog').show()" icon="ui-icon-document-b" title="Bearbeiten">
+                        <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}" />
+                    </p:commandButton>
+                    <p:commandButton action="#{personBean.doDeletePerson}" icon="ui-icon-trash" title="Löschen" update=":personForm:inacparentTable">
+                        <f:setPropertyActionListener value="#{parent}" target="#{personBean.person}" />
+            		<p:confirm header="Bestätigung" message="Wollen sie die Person wirklich löschen?" icon="ui-icon-alert" />
+                    </p:commandButton>
+ 		</p:column>
+            </p:dataTable>
+	
+       <p:dialog header="Login" id="loginDialog" widgetVar="loginDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false" >
+	       <p:outputPanel id="loginData" rendered="#{not empty personBean.person}">
+  		   <h:panelGrid columns="3" >
+	       <p:outputLabel for="mail" value="E-Mail Adresse: " />
+           <p:inputText id="mail" value="#{personBean.person.email}" />
+          <h:outputText rendered="#{personBean.getStatus() == 1}"
+                        value="*"
+                        style="color:red"/>
+          <h:outputText rendered="#{personBean.getStatus() != 1 }"/>
+	       <p:outputLabel for="password" value="Passwort: " />
+           <p:password id="password" value="#{personBean.person.password}" />
+          <h:outputText rendered="#{personBean.getStatus() == 1}"
+                        value="*"
+                        style="color:red"/>
+          <h:outputText rendered="#{personBean.getStatus() != 1 }"/>
+	       <p:commandButton value="Speichern" action="#{personBean.storeLoginDetails()}" onclick="PF('confirmationDialog').show()" update="status, status0, status1, status2"/>
+           <p:commandButton value="Fenster Schließen" onclick="PF('loginDialog').hide()"/>
+	       </h:panelGrid>
+	       </p:outputPanel>
+       </p:dialog>
+			
+			
+			
+	    <p:dialog header="Person bearbeiten" id="parentEditDialog" widgetVar="parentEditDialog" width="1200"  height="680" 
+                 modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+                <p:outputPanel id="editData" rendered="#{not empty personBean.person}">
+                <h:panelGrid columns="2">
+                <h:panelGrid columns="1">
+	                <p:graphicImage id="asdf" value="#{personBean.person.picture.getURI()}"/>
+	            </h:panelGrid>
+		        <h:panelGrid columns="3" >
+                             <p:outputLabel for="firstname" value="Vorname: " />
+                             <p:inputText id="firstname" value="#{personBean.person.firstName}" />
+	                         <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                                      value="*"
+	                                      style="color:red"/>
+	                         <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>               
+				
+                             <p:outputLabel for="lastname" value="Nachname: " />
+                             <p:inputText id="lastname" value="#{personBean.person.lastName}" />
+			 	             <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+			 	                          value="*"
+			 	                          style="color:red"/>
+			 	             <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>               
+			                 <p:outputLabel for="privateTelephone" value="private Telefonnummer: " />
+                             <p:inputMask id="privateTelephone" value="#{personBean.person.privateTelephone}" mask="+99? 999 9999999"/>
+			 	             <h:outputText />               
+                             <p:outputLabel for="workTelephone" value="geschäftliche Telefonnummer: " />
+                             <p:inputMask id="workTelephone" value="#{personBean.person.workTelephone}" mask="+99? 999 9999999"/>
+			 	             <h:outputText />                            
+                             <p:outputLabel for="enabled" value="Berechtigt zur Anmeldung: " rendered="#{sessionInfoBean.hasRole('ADMIN')}"/>
+                             <p:selectBooleanCheckbox id="enabled" value="#{personBean.person.enabled}" rendered="#{sessionInfoBean.hasRole('ADMIN')}"/>
+			 	             <h:outputText />               
+							 
+                 </h:panelGrid>
+                 </h:panelGrid>
+			
+			 <p:separator/>
+			Für Eltern wichtig: 
+		        <h:panelGrid columns="2" >
+			<p:outputLabel for="mailNotification" value="E-Mail Benachrichtigungen: " />
+                        <p:selectBooleanCheckbox id="mailNotification" value="#{personBean.person.mailNotification}"/>
+
+			<p:outputLabel for="mailLunchReminder" value="Essens Benachrichtigungen: " />
+                        <p:selectBooleanCheckbox id="mailLunchReminder" value="#{personBean.person.mailLunchReminder}"/>
+
+			<p:separator/>
+		    <p:separator/>
+
+			<h:outputText value="Aktuelle Rollen:" />
+                  	<h:outputText value="#{personBean.person.rolesString}"/>
+
+			Benutzerrollen ändern:
+					<p:selectManyCheckbox id="roles" value="#{personBean.existing_roles}">
+         	   			    <f:selectItem itemLabel="Bezugsperson" itemValue="guardian" />
+            			            <f:selectItem itemLabel="Eltern" itemValue="parents" />
+  		                        </p:selectManyCheckbox>
+		
+		        <p:outputLabel for="comment" value="Kommentar:" />
+	                <p:inputTextarea id="comment" rows="6" cols="33" value="#{personBean.person.comment}" />	    
+                   	</h:panelGrid>
+		    	<p:separator/>
+			
+			 <h:form>
+			   	Neues Foto hochladen:
+       			<p:fileUpload fileUploadListener="#{personBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+				sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+				invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+        	        </h:form>
+			<p:separator/>
+                     	<h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{personBean.storeExistingPerson()}" onclick="PF('confirmationDialog').show()" update="status,status0,status1,status2"/>
+                        <p:commandButton value="Neu laden" action="#{personBean.doReloadPerson()}" update=":personForm:editData"/>
+                        <p:commandButton value="Fenster Schließen" onclick="PF('parentEditDialog').hide()"  update=":personForm:parentTable, inacparentTable"/>
+                    </h:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+
+
+
+	     <p:dialog header="Neue Person anlegen" id="newParentDialog" widgetVar="newParentDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+	    	<h:panelGrid columns="3" cellpadding="5" id="panel">
+		        <p:outputLabel for="firstName1" value="Vorname: " />
+		        <p:inputText id="firstName1" value="#{personBean.firstName}"/>
+	            <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>
+				
+	            <p:outputLabel for="lastName1" value="Nachname:" />
+	            <p:inputText id="lastName1" value="#{personBean.lastName}" />
+	            <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>
+ 			   
+	            <p:outputLabel for="mail1" value="E-Mail: " />
+	            <p:inputText id="mail1" value="#{personBean.email}" />
+	            <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+	                          value="*"
+	                          style="color:red"/>
+	            <h:outputText rendered="#{personBean.getStatus() != 1 and personBean.getStatus() != 2}"/>
+			   
+	            <p:outputLabel for="privateTelephone1" value="private Telefonnummer:" />
+	            <p:inputMask id="privateTelephone1" value="#{personBean.privateTelephone}" mask="+99? 999 9999999"/>
+				<h:outputText/>
+			
+                <p:outputLabel for="workTelephone1" value="geschäftliche Telefonnummer:" />
+	            <p:inputMask id="workTelephone1" value="#{personBean.workTelephone}" mask="+99? 999 9999999"/>
+				<h:outputText />
+
+                <p:outputLabel for="comment1" value="Kommentar:" />
+	            <p:inputTextarea rows="6" cols="33" id="comment1" value="#{personBean.comment}" />
+				<h:outputText />
+				
+		</h:panelGrid>
+		    <p:separator/>
+                <h:form>
+		    Foto hochladen:
+
+       		    <p:fileUpload fileUploadListener="#{personBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+			sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+			invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+                </h:form>
+		<p:separator/>
+
+		<h:panelGrid columns="3" cellpadding="5" id="panel1">
+			Benutzerrollen:
+			<p:selectManyCheckbox id="roles11" value="#{personBean.new_roles}">
+         	   		<f:selectItem itemLabel="Bezugsperson" itemValue="guardian" />
+            	                <f:selectItem itemLabel="Eltern" itemValue="parents" />
+  		        </p:selectManyCheckbox>
+            <h:outputText rendered="#{personBean.getStatus() == 1 or personBean.getStatus() == 2}"
+                          value="*"
+                          style="color:red"/>
+            <h:outputText rendered="#{personBean.getStatus() != 1 or personBean.getStatus() != 2}"/>
+			
+		 </h:panelGrid>
+		     <p:separator/>
+			Für Eltern wichtig: 
+		<h:panelGrid columns="2" cellpadding="5" id="panel2">
+			<h:outputText value="Allgemeine E-Mail Benachrichtigungen: " />
+			<p:selectBooleanCheckbox value="#{personBean.mailNotification}"/>
+						
+			<h:outputText value="E-Mail Benachrichtigungen bzgl. Essen: " />
+			<p:selectBooleanCheckbox value="#{personBean.mailLunchReminder}" />
+		 </h:panelGrid>
+		<p:separator />
+		<h:panelGrid columns="2" cellpadding="5" id="panel3">   
+		    <p:commandButton value="Speichern" actionListener="#{personBean.newPerson}" onclick="PF('confirmationDialog').show()" update="status,status0,status1,status2">
+	            </p:commandButton>
+	            <p:commandButton value="Fenster Schließen" onclick="PF('newParentDialog').hide()" update=":personForm:parentTable, inacparentTable">
+                    </p:commandButton>
+	         </h:panelGrid>
+	    </p:dialog>
+
+
+		
+              <p:dialog header="Kontaktliste" id="contactDialog" widgetVar="contactDialog" width="950" height="700" showEffect="clip" hideEffect="clip" modal="true"
+                     resizable="false" style="text-align: center">
+		<h:outputText value="Die Kontaktliste kann erst vollständig angezeigt werden, wenn dieser Person Kinder zugewiesen wurden." 
+		rendered="#{empty personBean.person.allAssociatedParents}" />
+                <p:outputPanel id="contactData" rendered="#{not empty personBean.person.allAssociatedParents}">
+			   <p:panelGrid columns="1">
+                            <p:dataTable id="contactTable" var="person" value="#{personBean.person.allAssociatedParents}" style="text-align: center">
+				<f:facet name="header">
+					Person
+				</f:facet> 
+                		<p:column headerText="Vorname">
+                    			<h:outputText value="#{person.firstName}"/>
+                		</p:column>
+                		<p:column headerText="Nachname">
+                  			 <h:outputText value="#{person.lastName}"/>
+               			 </p:column>
+               			 <p:column headerText="private Telefonnummer">
+                 			  <h:outputText value="#{person.privateTelephone}"/>
+               			 </p:column>
+				  <p:column headerText="geschaeftliche Telefonnumme">
+                 			  <h:outputText value="#{person.workTelephone}"/>
+               			 </p:column>
+				 <p:column headerText="E-Mail">
+                   			 <h:outputText value="#{person.email}" />
+               			 </p:column>
+            		    </p:dataTable>
+                           
+                         <p:dataTable id="contactTable1" var="emergency" value="#{personBean.person.allAssociatedEmergencyContacts}" 
+                          rendered="#{not empty personBean.person.allAssociatedEmergencyContacts}" style="text-align: center">
+			<f:facet name="header">
+				Notfallkontakte
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{emergency.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{emergency.lastName}"/>
+               		 </p:column>
+			 <p:column headerText="private Telefonnummer">
+                   		 <h:outputText value="#{emergency.privateTelephone}" />
+               		 </p:column>
+			<p:column headerText="geschaeftliche Telefonnummer">
+                   		 <h:outputText value="#{emergency.workTelephone}" />
+               		 </p:column>
+			<p:column headerText="E-Mail">
+                  	  	<h:outputText value="#{emergency.email}" />
+               		 </p:column>
+            	</p:dataTable>
+						   
+                          <p:dataTable id="contactTable2" var="guardians" value="#{personBean.person.allAssociatedGuardians}" 
+                           rendered="#{not empty personBean.person.allAssociatedGuardians}" style="text-align: center">
+			<f:facet name="header">
+				Bezugspersonen
+			</f:facet> 
+                	<p:column headerText="Vorname">
+                    		<h:outputText value="#{guardians.firstName}"/>
+                	</p:column>
+                	<p:column headerText="Nachname">
+                  		 <h:outputText value="#{guardians.lastName}"/>
+               		 </p:column>
+			 <p:column headerText="private Telefonnummer">
+                   		 <h:outputText value="#{guardians.privateTelephone}" />
+               		 </p:column>
+			<p:column headerText="geschaeftliche Telefonnummer">
+                   		 <h:outputText value="#{guardians.workTelephone}" />
+               		 </p:column>
+			<p:column headerText="E-Mail">
+                  	  	<h:outputText value="#{guardians.email}" />
+               		 </p:column>
+            	</p:dataTable>
+					   
+                        </p:panelGrid>
+	                   <p:separator />
+		
+
+	                   <p:panelGrid columns="2" style="width:100px;text-align: center">
+	  	      		<p:commandButton value="Schließen" onclick="PF('contactDialog').hide()"/>
+
+		      		<p:commandLink id="pdf" ajax="false">   
+                                        <p:commandButton value="PDF" title="...als PDF exportieren!"/>  
+         				<pe:exporter type="pdf" target="contactTable,contactTable1,contactTable2" fileName="kontaktliste" datasetPadding="1"/>  
+     				</p:commandLink>
+	  	   	</p:panelGrid>
+               </p:outputPanel>
+            </p:dialog>
+
+             
+      <p:dialog header="Nachricht" id="confirmationDialog" widgetVar="confirmationDialog" width="700" height="90" modal="true" showEffect="clip" 
+                 hideEffect="clip" resizable="false" >
+            <p:outputPanel id="status">
+            <h:outputText id="status0" rendered="#{personBean.getStatus() == 1}"
+                 value="Speichern nicht möglich! Die Pflichtfelder wurden nicht vollständig ausgefüllt!"
+                 style="color:red"/>
+             <h:outputText id="status1" rendered="#{personBean.getStatus() == 2}"
+                 value="Person mit diesen Daten schon vorhanden!"
+                 style="color:red"/>
+             <h:outputText id="status2" rendered="#{personBean.getStatus() == 0}"
+                 value="Person wurde gespeichert!"/>
+	      <p:separator />
+             </p:outputPanel>
+            <p:commandButton value="Fenster Schließen" update="panel, panel1, editData, loginData" onclick="PF('confirmationDialog').hide()"/>
+       </p:dialog>
+
+	    <p:confirmDialog global="true" showEffect="clip" hideEffect="clip" width="300">
+                <p:commandButton value="Ja" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                <p:commandButton value="Nein" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+           </p:confirmDialog>
+           
+			
+
+        </h:form>
+    </ui:define>
+</ui:composition>

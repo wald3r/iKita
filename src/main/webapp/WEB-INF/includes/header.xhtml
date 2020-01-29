@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<body>
+
+
+<ui:composition>
+    <h:form>
+        
+
+        
+        <p:menubar>
+
+            <p:menuitem value="Startseite" url="/secured/welcome.xhtml"
+                        rendered="#{sessionInfoBean.loggedIn or sessionInfoBean.hasRole('ADMIN')}" icon="ui-icon-home"/>
+
+            <p:menuitem value="Kinder Kalender" url="/secured/childCalendar.xhtml" rendered="#{sessionInfoBean.hasRole('PARENT')}"/>
+
+            <p:submenu label="Paedagogen Kalender" rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}">
+                <p:menuitem value="Monat" url="/secured/teacherCalendarMonth.xhtml"/>
+                <p:menuitem value="Woche" url="/secured/teacherCalendarWeek.xhtml"/>
+                <p:menuitem value="Tag" url="/secured/teacherCalendarDay.xhtml"/>
+            </p:submenu>
+
+            <p:submenu label="Benutzerverwaltung"
+                       rendered="#{sessionInfoBean.loggedIn or sessionInfoBean.hasRole('ADMIN')}">
+                <p:menuitem value="Personen" url="/secured/parents.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}"/>
+                <p:menuitem value="Kinder" url="/secured/children.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}"/>
+                <p:menuitem value="Meine Kinder" url="/secured/children.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('PARENT')}"/>
+                <p:menuitem value="Meine Daten" url="/secured/personDetail.xhtml"/>
+                <p:menuitem value="Meine Bezugspersonen" url="/secured/parentGuardians.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('PARENT')}"/>
+            </p:submenu>
+
+            <p:menuitem value="Aufgaben" url="/secured/teacherTasks.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}"/>
+            <p:menuitem value="Aufgaben" url="/secured/parentTasks.xhtml"
+                            rendered="#{sessionInfoBean.hasRole('PARENT')}"/>
+
+            <p:submenu label="Administration"
+                       rendered="#{sessionInfoBean.hasRole('TEACHER') or sessionInfoBean.hasRole('ADMIN')}">
+                <p:menuitem value="Audit-Log" url="/secured/logViewer.xhtml"/>
+            </p:submenu>
+
+            <p:menuitem value="Nachrichten (#{messageController.unreadMessages})"
+                        url="/secured/messages.xhtml"
+                        rendered="#{sessionInfoBean.loggedIn or sessionInfoBean.hasRole('ADMIN')}"/>
+            <p:menuitem value="Anmelden" url="/login.xhtml" rendered="#{!sessionInfoBean.loggedIn}"/>
+            <p:menuitem value="Abmelden" url="/logout" rendered="#{sessionInfoBean.loggedIn}"/>
+
+        </p:menubar>
+    </h:form>
+</ui:composition>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:ng="http://xmlns.jcp.org/jsf/passthrough"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name="content" >
+        <h:outputStylesheet library="css" name="global.css"  />
+
+        <form id="login_form" action="#{request.contextPath}/login" method="post">
+            <p:focus context="loginGrid"/>
+            <h:panelGrid id="loginGrid" columns="2" styleClass="center">
+                <p:outputLabel for="username" value="E-Mail-Adresse:"/>
+                <p:inputText id="username" type="text" required="true" value="" focus="username"/>
+
+                <p:outputLabel for="password" value="Passwort:"/>
+                <p:inputText id="password" type="password" required="true" value=""/>
+
+                <button type="submit"
+                        class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+                    <span class="ui-button-text">Anmelden</span>
+                </button>
+
+                <h:outputText rendered="#{request.getParameter('error') == true}"
+                              value="E-Mail Adresse oder Passwort falsch!"
+                              style="color:red"/>
+            </h:panelGrid>
+        </form>
+
+        <div style="text-align: center;">
+            <p>Admin: admin@ikita.at</p>
+            <p>Teacher 1: teacher1@ikita.at</p>
+            <p>Teacher 2: teacher1@ikita.at</p>
+            <p>Parent N: userN@ikita.at</p>
+        </div>
+    </ui:define>
+
+</ui:composition>

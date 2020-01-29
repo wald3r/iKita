@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/main.xhtml">
+
+    <ui:define name ="content">
+		<h:form id="personDetailForm">
+			
+			<p:dataScroller id="personDetail" value="#{personBean.currentPerson}" var="user" ckunkSize="7" mode="inline" scrollHeight="350">
+				<f:facet name="header">
+				Meine Daten
+				</f:facet>
+				
+				<p:outputPanel>
+					<h:panelGrid columns="1" cellpadding="4">
+						
+						<h:panelGrid columns="2" cellpadding="4" >
+							
+							<h:outputText value="Nachname:" />
+							<h:outputText value="#{user.lastName}"/>
+						
+							<h:outputText value="Vorname:" />
+							<h:outputText value="#{user.firstName}"/>	
+							
+							<h:outputText value="E-Mail-Adresse:"/>
+							<h:outputText value="#{user.email}"/>
+							
+							<h:outputText value="private Telefonnr.:"/>
+							<h:outputText value="#{user.privateTelephone}"/>
+						
+							<h:outputText value="geschäftl. Telefonnr.:"/>
+							<h:outputText value="#{user.workTelephone}"/>
+							
+							<h:outputText value="E-Mail-Benachrichtigung"/>
+						<h:selectBooleanCheckbox disabled="true" value="#{user.mailNotification}"/>
+					
+						<h:outputText value="Erinnerung für Essensanmeldung"/>
+						<h:selectBooleanCheckbox disabled="true" value="#{user.mailLunchReminder}"/>
+						
+						</h:panelGrid>
+						
+						
+						<p:separator/>
+						<h:panelGrid columns="2" cellpadding="4">
+						<p:commandButton value="Daten bearbeiten" update=":personDetailForm:parentEditDialog" oncomplete="PF('parentEditDialog').show()">
+				<f:setPropertyActionListener value="#{personBean.currentPerson}" target="#{personBean.person}" />
+			</p:commandButton>
+			
+						<p:commandButton value="Login-Daten bearbeiten" update=":personDetailForm:editEmailDialog" oncomplete="PF('editEmailDialog').show()" >
+						<f:setPropertyActionListener value="#{personBean.currentPerson}" target="#{personBean.person}" />
+						</p:commandButton>
+						</h:panelGrid>
+					</h:panelGrid>
+				</p:outputPanel>
+	
+			
+            </p:dataScroller>
+            
+            <p:dialog id="editEmailDialog" header="Login-Daten bearbeiten" widgetVar="editEmailDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false" >
+            	<p:outputPanel id="editEmail" rendered="#{not empty personBean.person}">
+                   	<h:panelGrid columns="2" >
+                        
+                        <p:outputLabel for="email" value="E-Mail: " />
+                        <p:inputText id="email" value="#{personBean.person.email}"/>
+                        
+						<p:outputLabel for="password" value="Passwort: " />
+                        <p:password id="password" value="#{personBean.person.password}"/>
+					</h:panelGrid>
+			
+					<p:separator/>
+					<h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{personBean.doSavePerson()}" oncomplete="PF('editEmailDialog').hide()" 	
+                        				update=":personDetailForm:personDetail"/>
+                       
+                        <p:commandButton value="Abbrechen" onclick="PF('editEmailDialog').hide()"/>
+                    </h:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+            
+            
+            <p:dialog header="Daten bearbeiten" id="parentEditDialog" widgetVar="parentEditDialog" modal="true" showEffect="clip" hideEffect="clip" resizable="false">
+                <p:outputPanel id="editData" rendered="#{not empty personBean.person}">
+                   <h:panelGrid columns="2" >
+                        <p:outputLabel for="firstname" value="Vorname: " />
+                        <p:inputText id="firstname" value="#{personBean.person.firstName}"/>
+                        
+                        <p:outputLabel for="lastname" value="Nachname: " />
+                        <p:inputText id="lastname" value="#{personBean.person.lastName}" />
+                        
+						<p:outputLabel for="privateTelephone" value="private Telefonnummer: " />
+                        <p:inputText id="privateTelephone" value="#{personBean.person.privateTelephone}" />
+
+						<p:outputLabel for="workTelephone" value="geschäftliche Telefonnummer: " />
+                        <p:inputText id="workTelephone" value="#{personBean.person.workTelephone}" />
+					</h:panelGrid>
+					<p:separator/>
+					<h:panelGrid columns="2">
+						<p:outputLabel for="mailNotification" value="E-Mail Benachrichtigungen: " />
+                        <p:selectBooleanCheckbox id="mailNotification" value="#{personBean.person.mailNotification}"/>
+
+						<p:outputLabel for="mailLunchReminder" value="Erinnerung für Essensanmeldung: " />
+                        <p:selectBooleanCheckbox id="mailLunchReminder" value="#{personBean.person.mailLunchReminder}"/>
+						
+					</h:panelGrid>
+					<p:separator/>
+					<p:outputLabel value="Bild ändern:"/>
+					<h:panelGrid columns="1" style="margin:auto">
+					
+					
+       		   			<p:fileUpload fileUploadListener="#{personBean.uploadPicture}" mode="advanced" dragDropSupport="false" 
+						sizeLimit="400000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" uploadLabel="Hochladen" cancelLabel="Abbrechen" label="Auswählen"
+						invalidFileMessage="Falscher Datentyp!" invalidSizeMessage="Datei zu groß!" fileLimitMessage="Bitte nur ein Bild auswählen!"/>
+                
+                    </h:panelGrid>
+                    <p:separator/>
+                    <p:outputLabel for="comment" value="Kommentar:" />
+                    <h:panelGrid columns="1" style="margin:auto">
+						<p:inputTextarea id="comment" rows="6" cols="33" value="#{personBean.person.comment}" />	    
+					</h:panelGrid>
+					<p:separator/>
+					<h:panelGrid columns="3">
+                        <p:commandButton value="Speichern" action="#{personBean.doSavePerson()}" oncomplete="PF('parentEditDialog').hide()" 					update=":personDetailForm:personDetail"/>
+                        <p:commandButton value="Neu laden" action="#{personBean.doReloadPerson()}" update=":personDetailForm:editData"/>
+                        <p:commandButton value="Abbrechen" onclick="PF('parentEditDialog').hide()"/>
+                    </h:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+		</h:form>
+		
+    </ui:define>   
+</ui:composition>

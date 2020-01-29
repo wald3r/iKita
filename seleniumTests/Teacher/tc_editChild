@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>tc_editChild</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">tc_editChild</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/secured/welcome.xhtml</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Kinder</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=childForm:activechildTable:globalFilter</td>
+	<td>new</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:activechildTable:0:j_idt75</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=childForm:comment</td>
+	<td>Here is a comment!</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:j_idt311</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertNotBodyText</td>
+	<td>id=childForm:comment</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=childForm:comment</td>
+	<td>Here is a comment!</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:j_idt310</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertVisible</td>
+	<td>id=childForm:confirmationDialog_title</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:j_idt236</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:j_idt312</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:activechildTable:0:j_idt75</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=childForm:comment</td>
+	<td>Here is a comment!</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=childForm:j_idt312</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>css=span.ui-menuitem-text</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=span.ui-panel-title</td>
+	<td>Neuigkeiten</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
